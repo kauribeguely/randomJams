@@ -6,14 +6,19 @@ import { useState } from 'react';
 function List(props)
 {
   const [listItems, setListItems] = useState([
-    { name: 'List 1', category: 'boop' },
+    { text: 'milk', completed: 'true' },
+    { text: 'eggs', completed: 'false' },
+    { text: 'bread', completed: 'false' },
   ]);
 
   return  (
     <>
-      {listItems.map((list, index) => (
-        <ListItem name={list.name} category={list.category} />
-      ))}
+      <h2>{props.name}</h2>
+      <h3>{props.category}</h3>
+      {(props.listItems).map((list, index) => (
+      (
+        <ListItem key={index} text={list.text} completed={list.completed} />
+      )))}
     </>
   );
 

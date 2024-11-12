@@ -4,12 +4,22 @@ import { useState } from 'react';
 
 function ListItem(props)
 {
-  return  (
-    <>
-      <h3> List: {props.name} </h3>
-      <p> {props.category ? props.category : "No Category"} </p>
-    </>
-  );
+  // Set initial checked state based on props
+  const [isChecked, setIsChecked] = useState(props.isChecked);
+
+  // Function to toggle checked state
+  const toggleCheck = () => {
+    setIsChecked((prev) => !prev); // Toggle the checked state
+  };
+
+    return (
+      <div>
+        <input type="checkbox" checked={props.isChecked} onChange={toggleCheck} />
+        <span style={{ textDecoration: props.isChecked ? "line-through" : "none" }}>
+          {props.text}
+        </span>
+      </div>
+    );
 
 }
 
