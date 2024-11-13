@@ -2,33 +2,48 @@
 import './App.css';
 import List from './components/List';
 import ListItem from './components/ListItem';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 function App() {
   // State to hold list items
-  const [lists, setLists] = useState([
-    {
-       id: 1,
-       name: 'List 1',
-       timeModified: '1 Nov',
-       listItems: [
-         { id: 1, text: 'Buy milk', completed: false, owner: 'him' },
-         { id: 2, text: 'Get bread', completed: true, owner: 'her' }
-       ]
-     },
-     {
-       id: 2,
-       name: 'List 2',
-       timeModified: '1 Nov',
-       listItems: [
-         { id: 1, text: 'Email client', completed: false, owner: 'him' },
-         { id: 2, text: 'Write report', completed: false, owner: 'her' }
-       ]
-     },
-  ]);
+  const [lists, setLists] = useState([]);
+  // const [lists, setLists] = useState([
+  //   {
+  //      id: 1,
+  //      name: 'List 1',
+  //      timeModified: '1 Nov',
+  //      listItems: [
+  //        { id: 1, text: 'Buy milk', completed: false, owner: 'him' },
+  //        { id: 2, text: 'Get bread', completed: true, owner: 'her' }
+  //      ]
+  //    },
+  //    {
+  //      id: 2,
+  //      name: 'List 2',
+  //      timeModified: '1 Nov',
+  //      listItems: [
+  //        { id: 1, text: 'Email client', completed: false, owner: 'him' },
+  //        { id: 2, text: 'Write report', completed: false, owner: 'her' }
+  //      ]
+  //    },
+  // ]);
 
   const [activePage, setActivePage] = useState("allLists");
   const [currentList, setCurrentList] = useState(null);
+
+
+  // Load lists from localStorage when the app starts
+    useEffect(() => {
+      const storedLists = localStorage.getItem("lists");
+      if (storedLists) {
+        setLists(JSON.parse(storedLists));
+      }
+    }, []);
+
+    // Save lists to localStorage whenever lists state changes
+    useEffect(() => {
+      localStorage.setItem("lists", JSON.stringify(lists));
+    }, [lists]);
 
   // Function to view a single list
 const viewList = (list) => {
@@ -36,15 +51,29 @@ const viewList = (list) => {
   setActivePage("singleList");
 };
 
-  // const []
+function formatDate(date) {
+        // Define the months array
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-// Function to add a new list item
-const addList = () => {
+        // Get the day and month
+        const day = date.getDate();
+        const month = months[date.getMonth()];
 
- const newList = { name: `List ${lists.length + 1}`, timeModified: 'new category' };
- setLists([...lists, newList]);
+        // Return formatted date
+        return `${day} ${month}`;
+    }
 
-};
+  // Function to add a new list item
+  const addList = () =>
+  {
+    // Get the current date
+    const currentDate = new Date();
+    let dateString = formatDate(currentDate);
+
+    const newList = { name: `List ${lists.length + 1}`, timeModified: dateString, listItems : [ {id: 1, text: 'First ITem', completed: false, owner: 'him'} ] };
+    setLists([...lists, newList]);
+    viewList(newList);
+  };
 
   // return (
   //  <div className="App">
@@ -76,16 +105,20 @@ const addList = () => {
 
          </div>
        ) : activePage === "singleList" && currentList ? (
+
          <div id="singleList">
+        <button onClick={() => setActivePage("allLists")} id='button-home'>&#127968;</button>
            <h2>{currentList.name}</h2>
-           <button onClick={() => setActivePage("allLists")}>Back to All Lists</button>
+           <h3>{currentList.timeModified}</h3>
            {currentList.listItems.map((item, index) => (
              <div key={index}>
                <input type="checkbox" checked={item.completed} readOnly />
                <span>{item.text}</span>
              </div>
            ))}
+
          </div>
+
        ) : null}
      </div>
    );
