@@ -1,0 +1,15 @@
+.singleList
+{
+  width: 200px;
+  border: 1px solid black;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  margin-bottom: 40px;
+}
+
+.right
+{
+  /* right:0px;
+  position: absolute; */
+}
