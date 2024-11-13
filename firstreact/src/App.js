@@ -36,14 +36,18 @@ function App() {
     useEffect(() => {
       const storedLists = localStorage.getItem("lists");
       if (storedLists) {
+        // console.log('stored: ' + storedLists);
         setLists(JSON.parse(storedLists));
       }
     }, []);
 
     // Save lists to localStorage whenever lists state changes
     useEffect(() => {
-      localStorage.setItem("lists", JSON.stringify(lists));
-    }, [lists]);
+      if (lists.length > 0) {  // Prevent saving empty array repeatedly
+        console.log('Saving to localStorage:', lists);
+        localStorage.setItem("lists", JSON.stringify(lists));
+      }
+    }, [lists]);  // This effect runs only when lists change
 
   // Function to view a single list
 const viewList = (list) => {
