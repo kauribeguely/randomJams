@@ -79,6 +79,12 @@ function formatDate(date) {
     viewList(newList);
   };
 
+  const toggleCompleted = (index) => {
+    const updatedListItems = currentList.listItems.map((item, idx) =>
+      idx === index ? { ...item, completed: !item.completed } : item
+    );
+  }
+
   // return (
   //  <div className="App">
   //    <div>
@@ -96,6 +102,7 @@ function formatDate(date) {
   // Render the appropriate page based on `activePage`
    return (
      <div className="App">
+
        {activePage === "allLists" ? (
          <div id="allLists">
 
@@ -111,13 +118,16 @@ function formatDate(date) {
        ) : activePage === "singleList" && currentList ? (
 
          <div id="singleList">
-        <button onClick={() => setActivePage("allLists")} id='button-home'>&#127968;</button>
+          <button onClick={() => setActivePage("allLists")} id='button-home'>&#127968;</button>
+          <button onClick={() => setActivePage("allLists")} id='button-new-item'>+</button>
+
+
            <h2>{currentList.name}</h2>
            <h3>{currentList.timeModified}</h3>
            {currentList.listItems.map((item, index) => (
              <div key={index}>
-               <input type="checkbox" checked={item.completed} readOnly />
-               <span>{item.text}</span>
+               <input type="checkbox" checked={item.completed} onChange={toggleCompleted()} />
+               <input type="text" value={item.text} onChange=""/>
              </div>
            ))}
 
