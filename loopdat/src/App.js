@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 
 function App() {
+  const [imageSrc, setImageSrc] = useState('');
+  const [imageWidth, setImageWidth] = useState(100); // Default width: 100px
   const [rows, setRows] = useState(3);
   const [itemsPerRow, setItemsPerRow] = useState(4);
   const [rowSpacing, setRowSpacing] = useState(10);
   const [itemSpacing, setItemSpacing] = useState(10);
-  const [imageSrc, setImageSrc] = useState('');
 
   return (
     <div className="App">
@@ -13,6 +14,18 @@ function App() {
 
       {/* Input Form */}
       <div>
+        <input
+          type="text"
+          placeholder="Image URL"
+          value={imageSrc}
+          onChange={(e) => setImageSrc(e.target.value)}
+        />
+        <input
+          type="number"
+          value={imageWidth}
+          onChange={(e) => setImageWidth(e.target.value)}
+          placeholder="Set image width"
+        />
         <input
           type="number"
           placeholder="Number of Rows"
@@ -37,12 +50,6 @@ function App() {
           value={itemSpacing}
           onChange={(e) => setItemSpacing(Number(e.target.value))}
         />
-        <input
-          type="text"
-          placeholder="Image URL"
-          value={imageSrc}
-          onChange={(e) => setImageSrc(e.target.value)}
-        />
       </div>
 
       {/* Preview Grid */}
@@ -66,7 +73,7 @@ function App() {
                 key={itemIndex}
                 src={imageSrc || 'https://via.placeholder.com/100'}
                 alt="Looped"
-                style={{ width: '100px', height: '100px' }}
+                style={{ width: `${imageWidth}px` }}
               />
             ))}
           </div>
