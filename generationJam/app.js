@@ -89,15 +89,15 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
     let color = '000000';
     if(Math.round(percent*10) % 3 == 0)
     {
-      color = 'FF0000';
+      color = '1a628c';
     }
     else if(Math.round(percent*10) % 2 == 0)
     {
-      color = '00FF00';
+      color = 'ffb400';
     }
     else if(Math.round(percent*10) % 4 == 0)
     {
-      color = '0000FF';
+      color = '0051b5';
     }
     return color;
   }
@@ -167,7 +167,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
     percentX = mouseX/window.innerWidth;
     percentY = mouseY/window.innerHeight;
 
-    // objGroup.rotation.z = percentX * toRad(360);
+    objGroup.rotation.z = percentX * toRad(360);
   }
 
 
@@ -186,7 +186,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
     perSecond = delta / 1000;
     timeLastFrame = new Date().getTime();
 
-    objGroup.rotation.z += toRad(1);
+    // objGroup.rotation.z += toRad(1);
 
   	requestAnimationFrame( animate );
   	renderer.render( scene, camera );
