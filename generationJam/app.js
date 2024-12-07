@@ -9,7 +9,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
   const scene = new THREE.Scene();
 
-  const renderer = new THREE.WebGLRenderer({ alpha: true });
+  const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
   renderer.setSize( canvasWidth*window.innerWidth, window.innerHeight );
   document.body.appendChild( renderer.domElement );
 
@@ -27,26 +27,150 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
   const objGroup = new THREE.Group();
   scene.add(objGroup);
 
+  // Create an empty geometry
 
-  // var spiral = function(segLength, size)
-  function spiral(segLength, size)
+
+
+
+
+
+
+  // Create an array to hold the line's vertices
+  // const vertices = [];
+
+  // let vertexCont = 300;
+  // // Generate vertices in a loop
+  // for (let i = 0; i < vertexCont; i++) {
+  //   const percent = i / vertexCont;
+  //   // const x = Math.pow(i, .5) * Math.cos(toRad(percent*360));; // Incremental x positions
+  //   // const y = Math.pow(i, .5) * Math.sin(toRad(percent*360)); // Example: y based on a sine wave
+  //   const x = percent * 2 * Math.cos(toRad(percent*360*6));; // Incremental x positions
+  //   const y = percent * 2 * Math.sin(toRad(percent*360*6)); // Example: y based on a sine wave
+  //   // const x = Math.cos(toRad(percent*360*3));; // Incremental x positions
+  //   // const y = Math.sin(toRad(percent*360*3)); // Example: y based on a sine wave
+  //   const z = (percent - 0.5) * 2 ; // Keep z constant
+  //   vertices.push(x, y, z);
+  // }
+  //
+  // // Convert the vertices array into a Float32Array and set it as the geometry's position attribute
+  // geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+  //
+  // // Create a line material
+  // const material = new THREE.LineBasicMaterial({ color: 0xff0000, linewidth: 0.21,});
+  //
+  // // Create the line object
+  // const line = new THREE.Line(geometry, material);
+  //
+  // // Add the line to the scene
+  // scene.add(line);
+
+  // makeSpiral(6, 0.5, 0x000000, 0);
+  // makeSpiral(6, 0.5, 0x000000, 45);
+  // makeSpiral(6, 0.5, 0x000000, 90);
+  // makeSpiral(6, 0.5, 0x000000, 135);
+  // makeSpiral(6, 0.5, 0x000000, 180);
+  // makeSpiral(6, 0.5, 0x000000, 225);
+
+  let spiralCount = 10;
+  for(let i = 0; i < spiralCount; i++)
   {
-     var geometry = new THREE.BufferGeometry();
-     for(var t = 0; t < parseInt(size); t+= parseFloat(segLength))
-     {
-       var _x = Math.pow(t, .5) * Math.cos(t);
-       var _y = Math.pow(t, .5) * Math.sin(t);
-       geometry.vertices.push(new THREE.Vector3(_x, _y, 10));
-     }
-     return geometry;
+    let percent = i/spiralCount;
+    // let angle = i * 15;
+    let angle = percent * 360;
+    // let color = colorFromPercent(percent);
+    let color = col(percent);
+    // let angle = Math.sin(toRad(percent*180)) * 90;
+    makeSpiral(6, 0.5, parseInt('0x'+color), angle);
+
   }
 
-  const lineGeo = spiral(10, 10);
-  // dotGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array([0,0,0]), 3));
-  const lineMaterial = new THREE.PointsMaterial({color: 0xff0000 });
+  function col(percent)
+  {
+    let color = '000000';
+    if(Math.round(percent*10) % 3 == 0)
+    {
+      color = 'FF0000';
+    }
+    else if(Math.round(percent*10) % 2 == 0)
+    {
+      color = '00FF00';
+    }
+    else if(Math.round(percent*10) % 4 == 0)
+    {
+      color = '0000FF';
+    }
+    return color;
+  }
 
-  const line = new THREE.Points(lineGeo, lineMaterial);
-  scene.add(line);
+  function colorFromPercent(percent)
+  {
+    // Calculate the color components (R, G, B)
+    let r = Math.floor(percent * 255); // Red goes from 0 to 255
+    let g = Math.floor(percent * 255); // Green goes from 0 to 255
+    let b = Math.floor(percent * 255); // Blue goes from 0 to 255
+
+    // Convert RGB to a hex color
+    let color = (r << 16) | (g << 8) | b; // Combine RGB to hex format
+    return color;
+  }
+
+    // makeSpiral(6, 0.5, 0xff0000);
+    // makeSpiral(12, 0.5, 0x00ff00);
+    // makeSpiral(18, 0.5, 0x0000ff);
+  // function makeSpiral(repeats, size, color)
+  function makeSpiral(repeats, size, color, offset)
+  {
+
+    const geometry = new THREE.BufferGeometry();
+    const vertices = [];
+
+    let vertexCont = 600;
+    // Generate vertices in a loop
+    for (let i = 0; i < vertexCont; i++) {
+      const percent = i / vertexCont;
+      // const x = Math.pow(i, .5) * Math.cos(toRad(percent*360));; // Incremental x positions
+      // const y = Math.pow(i, .5) * Math.sin(toRad(percent*360)); // Example: y based on a sine wave
+      const x = percent * size * Math.cos(toRad(percent*360*repeats+offset));; // Incremental x positions
+      const y = percent * size * Math.sin(toRad(percent*360*repeats+offset)); // Example: y based on a sine wave
+      // const x = Math.cos(toRad(percent*360*3));; // Incremental x positions
+      // const y = Math.sin(toRad(percent*360*3)); // Example: y based on a sine wave
+      const z = (percent - 0.5) * size ; // Keep z constant
+      vertices.push(x, y, z);
+    }
+
+    // Convert the vertices array into a Float32Array and set it as the geometry's position attribute
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+
+    // Create a line material
+    const material = new THREE.LineBasicMaterial({ color: color, linewidth: 0.21,});
+
+    // Create the line object
+    const line = new THREE.Line(geometry, material);
+
+    // Add the line to the scene
+    // scene.add(line);
+    objGroup.add(line);
+  }
+
+
+
+
+
+
+  var percentX, percentY, mouseX, mouseY;
+
+  document.onmousemove = function(evt)
+  {
+    mouseX = evt.clientX;
+    mouseY = evt.clientY;
+
+    percentX = mouseX/window.innerWidth;
+    percentY = mouseY/window.innerHeight;
+
+    // objGroup.rotation.z = percentX * toRad(360);
+  }
+
+
 
 
   function toRad(deg)
@@ -54,11 +178,17 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
     return 0.0175*deg;
   }
 
-
+  let delta, perSecond;
+  let timeLastFrame = new Date().getTime();
   function animate()
   {
-  	requestAnimationFrame( animate );
+    delta = new Date().getTime() - timeLastFrame;
+    perSecond = delta / 1000;
+    timeLastFrame = new Date().getTime();
 
+    objGroup.rotation.z += toRad(1);
+
+  	requestAnimationFrame( animate );
   	renderer.render( scene, camera );
   }
   animate();
