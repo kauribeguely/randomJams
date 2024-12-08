@@ -71,7 +71,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
   // makeSpiral(6, 0.5, 0x000000, 180);
   // makeSpiral(6, 0.5, 0x000000, 225);
 
-  let spiralCount = 2;
+  let spiralCount = 10;
   for(let i = 0; i < spiralCount; i++)
   {
     let percent = i/spiralCount;
@@ -158,10 +158,10 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
     // const vertices = [];
 
-    let vertexCont = 200;
+    let vertexCont = 600;
     // Generate vertices in a loop
-    for (let i = 0; i < vertexCont; i++) {
-      const geometry = new THREE.BufferGeometry();
+    for (let i = 0; i < vertexCont; i++)
+    {
 
       const percent = i / vertexCont;
       const x = percent * size * Math.cos(toRad(percent * 360 * repeats + offset));
@@ -170,7 +170,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
       // Create vertices array for geometry
       const pos = [x, y, z];
-
+      const dot = makeDot(pos, color, 0.01);
 
       objGroup.add(dot);
 
@@ -184,13 +184,15 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
   }
 
-  function makeDot()
+  function makeDot(pos, color, size)
   {
+    const geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
 
     // Use PointsMaterial for a single point
-    const material = new THREE.PointsMaterial({ color: color, size: 0.01 }); // Adjust size as needed
+    const material = new THREE.PointsMaterial({ color: color, size: size }); // Adjust size as needed
     const dot = new THREE.Points(geometry, material);
+    return dot
   }
 
 
