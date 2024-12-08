@@ -71,7 +71,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
   // makeSpiral(6, 0.5, 0x000000, 180);
   // makeSpiral(6, 0.5, 0x000000, 225);
 
-  let spiralCount = 10;
+  let spiralCount = 2;
   for(let i = 0; i < spiralCount; i++)
   {
     let percent = i/spiralCount;
@@ -80,7 +80,8 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
     // let color = colorFromPercent(percent);
     let color = col(percent);
     // let angle = Math.sin(toRad(percent*180)) * 90;
-    makeSpiral(6, 0.5, parseInt('0x'+color), angle);
+    // makeSpiral(6, 0.5, parseInt('0x'+color), angle);
+    makeSpiralDot(6, 0.5, parseInt('0x'+color), angle);
 
   }
 
@@ -150,6 +151,46 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
     // Add the line to the scene
     // scene.add(line);
     objGroup.add(line);
+  }
+
+  function makeSpiralDot(repeats, size, color, offset)
+  {
+
+    // const vertices = [];
+
+    let vertexCont = 200;
+    // Generate vertices in a loop
+    for (let i = 0; i < vertexCont; i++) {
+      const geometry = new THREE.BufferGeometry();
+
+      const percent = i / vertexCont;
+      const x = percent * size * Math.cos(toRad(percent * 360 * repeats + offset));
+      const y = percent * size * Math.sin(toRad(percent * 360 * repeats + offset));
+      const z = (percent - 0.5) * size; // Incremental z
+
+      // Create vertices array for geometry
+      const pos = [x, y, z];
+
+
+      objGroup.add(dot);
+
+    }
+
+
+    // Convert the vertices array into a Float32Array and set it as the geometry's position attribute
+    // geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+
+    // Create a line material
+
+  }
+
+  function makeDot()
+  {
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+
+    // Use PointsMaterial for a single point
+    const material = new THREE.PointsMaterial({ color: color, size: 0.01 }); // Adjust size as needed
+    const dot = new THREE.Points(geometry, material);
   }
 
 
