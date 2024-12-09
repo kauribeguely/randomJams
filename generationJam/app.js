@@ -72,12 +72,19 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
   // makeSpiral(6, 0.5, 0x000000, 225);
   // manySpirals(10);
 
-  let sine1 = sine(100, 4, offset);
+  // let sine1 = sine(100, 20, offset, 10);
+  let sine1 = sine(500, 100, 0, 10);
+  // let sine1 = sine(500, 100, '1a628c', 0, 10);
+  objGroup.add(sine1);
+  let sine2 = sine(500, 100, 45, 10);
+  // let sine2 = sine(500, 100, 'ffb400', 45, 10);
+  objGroup.add(sine2);
 
   // goal, a sine that waves over time
     // add offset in animate, remove and add new sine each time (less intensive way? ask gpt)
 
-  function sine(vertexCount, length, offset)
+  // function sine(vertexCount, length, offset, color, waveCount)
+  function sine(vertexCount, length, offset, waveCount)
   {
 
     const geometry = new THREE.BufferGeometry();
@@ -86,13 +93,15 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
     for (let i = 0; i < vertexCount; i++)
     {
       const percent = i / vertexCount;
-      const x = (percent-0.5) * length; // Incremental x positions
-      const y = Math.sin(toRad(percent*360));
+      // const x = (percent-0.5) * length; // Incremental x positions
+      const x = percent * length; // Incremental x positions
+      const y = Math.sin(toRad(waveCount*percent*360+offset));
       const z = 0; // Keep z constant
       vertices.push(x, y, z);
     }
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-    const material = new THREE.LineBasicMaterial({ color: 0x000000});
+    // const material = new THREE.LineBasicMaterial({ color: parseInt('0x'+color)});
+    const material = new THREE.LineBasicMaterial({ color: 0xffb400});
     const line = new THREE.Line(geometry, material);
     objGroup.add(line);
     return line;
@@ -241,6 +250,10 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
     percentY = mouseY/window.innerHeight;
 
     // objGroup.rotation.z = percentX * toRad(360);
+
+
+    sine1.position.x = percentX * -28;
+    sine2.position.x = percentX * -20;
   }
 
 
@@ -260,6 +273,8 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
     timeLastFrame = new Date().getTime();
 
     // objGroup.rotation.z += toRad(1);
+    // sine1.position.x += perSecond * -3;
+    // sine2.position.x += perSecond * -4;
 
   	requestAnimationFrame( animate );
   	renderer.render( scene, camera );
