@@ -70,19 +70,49 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
   // makeSpiral(6, 0.5, 0x000000, 135);
   // makeSpiral(6, 0.5, 0x000000, 180);
   // makeSpiral(6, 0.5, 0x000000, 225);
+  // manySpirals(10);
 
-  let spiralCount = 10;
-  for(let i = 0; i < spiralCount; i++)
+  let sine1 = sine(100, 4, offset);
+
+  // goal, a sine that waves over time
+    // add offset in animate, remove and add new sine each time (less intensive way? ask gpt)
+
+  function sine(vertexCount, length, offset)
   {
-    let percent = i/spiralCount;
-    // let angle = i * 15;
-    let angle = percent * 360;
-    // let color = colorFromPercent(percent);
-    let color = col(percent);
-    // let angle = Math.sin(toRad(percent*180)) * 90;
-    // makeSpiral(6, 0.5, parseInt('0x'+color), angle);
-    makeSpiralDot(6, 0.5, parseInt('0x'+color), angle);
 
+    const geometry = new THREE.BufferGeometry();
+    const vertices = [];
+    // Generate vertices in a loop
+    for (let i = 0; i < vertexCount; i++)
+    {
+      const percent = i / vertexCount;
+      const x = (percent-0.5) * length; // Incremental x positions
+      const y = Math.sin(toRad(percent*360));
+      const z = 0; // Keep z constant
+      vertices.push(x, y, z);
+    }
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+    const material = new THREE.LineBasicMaterial({ color: 0x000000});
+    const line = new THREE.Line(geometry, material);
+    objGroup.add(line);
+    return line;
+  }
+
+
+  function manySpirals(spiralCount)
+  {
+    for(let i = 0; i < spiralCount; i++)
+    {
+      let percent = i/spiralCount;
+      // let angle = i * 15;
+      let angle = percent * 360;
+      // let color = colorFromPercent(percent);
+      let color = col(percent);
+      // let angle = Math.sin(toRad(percent*180)) * 90;
+      // makeSpiral(6, 0.5, parseInt('0x'+color), angle);
+      makeSpiralDot(6, 0.5, parseInt('0x'+color), angle);
+
+    }
   }
 
   function col(percent)
@@ -210,7 +240,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
     percentX = mouseX/window.innerWidth;
     percentY = mouseY/window.innerHeight;
 
-    objGroup.rotation.z = percentX * toRad(360);
+    // objGroup.rotation.z = percentX * toRad(360);
   }
 
 
