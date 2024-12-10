@@ -33,7 +33,7 @@ const loader = new GLTFLoader();
   lightGroup.add( directionalLight );
 
   const ambLight = new THREE.AmbientLight( 0xffffff, 0.5);
-lightGroup.add( ambLight );
+  lightGroup.add( ambLight );
 
   const objGroup = new THREE.Group();
   scene.add(objGroup);
@@ -42,6 +42,33 @@ lightGroup.add( ambLight );
   let loopedGroup = [];
   // Create an empty geometry
 
+  class AnimatableObj
+  {
+    constructor(src, scale, sineHeight, wavePerSec, waveOffset, xSpeed)
+    {
+      //load from src?
+      loadGlb(src, scale, this);
+      this.sineHeight = sineHeight;
+      this.wavePerSec = wavePerSec;
+      this.waveOffset = waveOffset;
+      this.xSpeed = xSpeed;
+      this.animProgress = 0;
+    }
+
+    animate(delta)
+    {
+      //sine height, wave per second, x speed
+      this.animProgress += delta/1000;
+      if(this.obj)
+      {
+        // this.obj.rotation.z += 0.2;
+        let test = this.sineHeight * Math.sin(toRad(this.animProgress*(this.wavePerSec*360+this.waveOffset)));
+        this.obj.position.y = test;
+        console.log(test);
+        this.obj.position.x = this.animProgress * this.xSpeed;
+      }
+    }
+  }
 
 
 
@@ -97,6 +124,9 @@ lightGroup.add( ambLight );
 
 
   loadStar();
+
+  let star1 = new AnimatableObj('obj/starThick.glb', 0.05, 1, 1, 0, 2);
+  let star2 = new AnimatableObj('obj/starThick.glb', 0.05, 1, 1, 45, 2);
 
   // loadThenSpiral('obj/heart.glb', 0.3, 6, 11, 0);
   // loadThenSpiral('obj/starThick.glb', 0.3, 6, 11, 180);
@@ -199,6 +229,19 @@ lightGroup.add( ambLight );
       // rowLoopGroup(star, 10, objGroup2, [1, 0, 0]);
       // randomAllLoop(star, 1000);
       // rowLoopGroup(star, 10, objGroup2);
+    });
+  }
+
+  function loadGlb(url, scale, animObj)
+  {
+    loader.load('obj/starThick.glb',	function ( gltf )
+    {
+      // deskObj
+      let obj = gltf.scene;
+      obj.scale.set(scale, scale, scale);
+      scene.add(obj);
+      animObj.obj = obj;
+      // return obj;
     });
   }
 
@@ -416,23 +459,6 @@ lightGroup.add( ambLight );
   }
 
 
-  class AnimatableObj()
-  {
-    constructor()
-    {
-      //load from src?
-    }
-
-    animate()
-    {
-      //sine height
-    }
-  }
-
-  // function animateObj()
-  // {
-  //   //
-  // }
 
 
   function toRad(deg)
@@ -459,11 +485,17 @@ lightGroup.add( ambLight );
       });
 
       timePassed = (new Date().getTime() - startTime)/1000;
-      if(star)
-      {
-        star.position.y = 0.5* Math.sin(toRad(timePassed*360));
-        star.position.x = timePassed*3 - 5;
-      }
+      // if(star)
+      // {
+      //   star.position.y = 0.5* Math.sin(toRad(timePassed*360));
+      //   star.position.x = timePassed*3 - 5;
+      // }
+
+      // if(star1)
+      // {
+        star1.animate(delta);
+        star2.animate(delta);
+      // }
 
     // objGroup.rotation.z += toRad(1);
     // sine1.position.x += perSecond * -3;
