@@ -15,6 +15,8 @@ const loader = new GLTFLoader();
 
   camera.position.z = 5;
 
+  let allSrc = ['obj/starThick.glb', 'obj/heart.glb', 'obj/laptopIso.glb', 'obj/phoneIso.glb']
+
   const scene = new THREE.Scene();
 
   const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
@@ -58,7 +60,7 @@ const loader = new GLTFLoader();
     animate(delta)
     {
       //sine height, wave per second, x speed
-      this.animProgress += delta/1000;
+      this.animProgress += delta/1000/3;
       if(this.obj)
       {
         // this.obj.rotation.z += 0.2;
@@ -66,6 +68,7 @@ const loader = new GLTFLoader();
         this.obj.position.y = test;
         // console.log(test);
         this.obj.position.x = this.animProgress * this.xSpeed;
+        this.obj.rotation.z = this.animProgress * toRad(-360);
       }
     }
   }
@@ -146,12 +149,16 @@ const loader = new GLTFLoader();
   let allAnim = [];
   function makeRandomAnimatable()
   {
-    const randomHeight = Math.random()*0.5+0.5; //between 0.5 and 2?
-    const randWavePS = Math.random()*1.5+0.5; //between 0.5 and 2?
+    // const randomHeight = Math.random()*0.5+0.5; //between 0.5 and 2?
+    const randomHeight = Math.random()*0.2+0.2; //between 0.5 and 2?
+    const randWavePS = Math.random()*0.5+0.25; //between 0.5 and 2?
     const randOffset = Math.random()*360;
     const randSpeed = Math.random()*3+1;
+    const constSpeed = 1;
+    const randSrc = allSrc[Math.floor(Math.random()*allSrc.length)];
 
-    let random = new AnimatableObj('obj/starThick.glb', 0.05, randomHeight, randWavePS, randOffset, randSpeed);
+    // let random = new AnimatableObj('obj/starThick.glb', 0.05, randomHeight, randWavePS, randOffset, randSpeed);
+    let random = new AnimatableObj(randSrc, 0.2, 0.3, 1, 0, 3);
     allAnim.push(random);
   }
 
@@ -253,7 +260,7 @@ const loader = new GLTFLoader();
 
   function loadGlb(url, scale, animObj)
   {
-    loader.load('obj/starThick.glb',	function ( gltf )
+    loader.load(url,	function ( gltf )
     {
       // deskObj
       let obj = gltf.scene;
