@@ -64,7 +64,7 @@ const loader = new GLTFLoader();
         // this.obj.rotation.z += 0.2;
         let test = this.sineHeight * Math.sin(toRad(this.animProgress*(this.wavePerSec*360+this.waveOffset)));
         this.obj.position.y = test;
-        console.log(test);
+        // console.log(test);
         this.obj.position.x = this.animProgress * this.xSpeed;
       }
     }
@@ -123,10 +123,12 @@ const loader = new GLTFLoader();
   // sineLoop(3);
 
 
-  loadStar();
+  // loadStar();
 
   let star1 = new AnimatableObj('obj/starThick.glb', 0.05, 1, 1, 0, 2);
   let star2 = new AnimatableObj('obj/starThick.glb', 0.05, 1, 1, 45, 2);
+
+
 
   // loadThenSpiral('obj/heart.glb', 0.3, 6, 11, 0);
   // loadThenSpiral('obj/starThick.glb', 0.3, 6, 11, 180);
@@ -135,6 +137,23 @@ const loader = new GLTFLoader();
   // manyLoadSpiral('obj/laptopIso.glb', 4, 0.3, 3, 10);
 
   // makeSpiral(3, 10, 0x1a628c, 180);
+
+  function makeManyRandomAnimatables(count)
+  {
+
+  }
+
+  let allAnim = [];
+  function makeRandomAnimatable()
+  {
+    const randomHeight = Math.random()*0.5+0.5; //between 0.5 and 2?
+    const randWavePS = Math.random()*1.5+0.5; //between 0.5 and 2?
+    const randOffset = Math.random()*360;
+    const randSpeed = Math.random()*3+1;
+
+    let random = new AnimatableObj('obj/starThick.glb', 0.05, randomHeight, randWavePS, randOffset, randSpeed);
+    allAnim.push(random);
+  }
 
   function manyLoadSpiral(src, spiralCount, objScale, spiralRepeats, size)
   {
@@ -420,7 +439,26 @@ const loader = new GLTFLoader();
 
 
 
+document.onkeydown = function(evt)
+{
+  switch(evt.key)
+    {
+      case " ":
+        // preventDefault
+        makeRandomAnimatable();
 
+        break;
+
+
+
+    }
+  // if(evt.key == " ")
+  // {
+  //   console.log
+  //   // let star1 = new AnimatableObj('obj/starThick.glb', 0.05, 1, 1, 0, 2);
+  //   makeRandomAnimatable();
+  // }
+}
 
 
   var percentX, percentY, mouseX, mouseY;
@@ -496,6 +534,10 @@ const loader = new GLTFLoader();
         star1.animate(delta);
         star2.animate(delta);
       // }
+
+
+      allAnim.forEach(animatable => animatable.animate(delta));
+
 
     // objGroup.rotation.z += toRad(1);
     // sine1.position.x += perSecond * -3;
