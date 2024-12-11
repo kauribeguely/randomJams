@@ -64,10 +64,15 @@ const loader = new GLTFLoader();
       if(this.obj)
       {
         // this.obj.rotation.z += 0.2;
+        // let test = this.sineHeight * Math.sin(toRad(this.animProgress*(this.wavePerSec*360+this.waveOffset))) + this.animProgress;
         let test = this.sineHeight * Math.sin(toRad(this.animProgress*(this.wavePerSec*360+this.waveOffset)));
         this.obj.position.y = test;
         // console.log(test);
+
+        // this.obj.position.x = this.sineHeight * Math.cos(toRad(this.animProgress*(this.wavePerSec*360+this.waveOffset)));
+
         this.obj.position.x = this.animProgress * this.xSpeed;
+        if(this.obj.position.x > 20) this.animProgress = 0;
         this.obj.rotation.z = this.animProgress * toRad(-360);
       }
     }
@@ -114,7 +119,7 @@ const loader = new GLTFLoader();
   // makeSpiral(6, 0.5, 0x000000, 180);
   // makeSpiral(6, 0.5, 0x000000, 225);
 
-  // manySpirals(10);
+  manySpirals(10);
 
   // // let sine1 = sine(100, 20, offset, 10);
   // let sine1 = sine(500, 100, 0, 10);
@@ -153,12 +158,14 @@ const loader = new GLTFLoader();
     const randomHeight = Math.random()*0.2+0.2; //between 0.5 and 2?
     const randWavePS = Math.random()*0.5+0.25; //between 0.5 and 2?
     const randOffset = Math.random()*360;
-    const randSpeed = Math.random()*3+1;
-    const constSpeed = 1;
+    // const randSpeed =  (Math.random() < 0.5 ? -1 : 1) * (Math.random()*3+1);
+    const randSpeed =  Math.random()*3+1;
+    const constSpeed = 3;
     const randSrc = allSrc[Math.floor(Math.random()*allSrc.length)];
 
     // let random = new AnimatableObj('obj/starThick.glb', 0.05, randomHeight, randWavePS, randOffset, randSpeed);
-    let random = new AnimatableObj(randSrc, 0.2, 0.3, 1, 0, 3);
+    let random = new AnimatableObj(randSrc, 0.2, randomHeight, randWavePS, randOffset, constSpeed);
+    // let random = new AnimatableObj(randSrc, 0.2, 0.3, 1, 0, 3);
     allAnim.push(random);
   }
 
@@ -312,18 +319,22 @@ const loader = new GLTFLoader();
 
   function col(percent)
   {
-    let color = '000000';
+    // let color = '000000';
+    let color = 'ffffff';
     if(Math.round(percent*10) % 3 == 0)
     {
-      color = '1a628c';
+      // color = '1a628c';
+      color = 'ffff00';
     }
     else if(Math.round(percent*10) % 2 == 0)
     {
-      color = 'ffb400';
+      // color = 'ffb400';
+      color = '00ffff';
     }
     else if(Math.round(percent*10) % 4 == 0)
     {
-      color = '0051b5';
+      // color = '0051b5';
+      color = 'ff00ff';
     }
     return color;
   }
