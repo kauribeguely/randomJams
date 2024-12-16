@@ -48,9 +48,22 @@
       document.body.appendChild(renderer.domElement);
 
       // Add lighting
-      const light = new THREE.DirectionalLight(0xffffff, 1);
-      light.position.set(10, 10, 10).normalize();
-      scene.add(light);
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+      directionalLight.position.set(0, 0, 20);
+      directionalLight.castShadow = true; // Enable shadow casting
+      scene.add(directionalLight);
+      // scene.add(light);
+
+      // Shadow plane
+        const planeGeometry = new THREE.PlaneGeometry(20, 20);
+        // const planeMaterial = new THREE.ShadowMaterial({ opacity: 0.5 }); // Semi-transparent shadow
+        const planeMaterial = new THREE.MeshStandardMaterial({ color: 0xe0e0e0, side: THREE.DoubleSide }); // Light gray color
+
+        const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+        // plane.rotation.x = -Math.PI / 2; // Flat on the ground
+        plane.position.z = -1.5; // Position it behind the cursor
+        plane.receiveShadow = true; // Enable shadow receiving
+        scene.add(plane);
 
       const controls = new OrbitControls( camera, renderer.domElement );
     controls.enableDamping = true;
@@ -71,6 +84,14 @@
         (gltf) => {
           cursorModel = gltf.scene;
           cursorModel.scale.set(0.15, 0.15, 0.15); // Scale it down if needed
+          // Iterate through all child meshes and update their material
+         cursorModel.traverse((child) => {
+           if (child.isMesh) {
+             child.castShadow = true; // Ensure it casts shadows
+             child.material = new THREE.MeshStandardMaterial({ color: 0x000000 }); // Replace with casting material
+           }
+         });
+          // cursorModel.castShadow = true;
           // cursorModel.rotation.x = toRad(90);
           // cursorModel.rotation.z= toRad(90);
           cursorContainer.add(cursorModel);
@@ -115,17 +136,23 @@
 
       // Make the cursor model follow the mouse
       // if (cursorModel)
-      if (cursorContainer)
+      if (cursorContainer && cursorModel)
       {
         // Convert mouse coordinates to 3D space
         const vector = new THREE.Vector3(mouse.x, mouse.y, 0.5).unproject(camera);
         const direction = vector.sub(camera.position).normalize();
         const distance = -camera.position.z / direction.z;
         const position = camera.position.clone().add(direction.multiplyScalar(distance));
+        cursorContainer.position.copy(position);
+
+
+
         cursorModel.rotation.x =  toRad((percentY-0.5) * 30);
         cursorModel.rotation.z =  -toRad((percentX-0.5) * 60);
         // cursorModel.rotation.y =  toRad((percentX-0.5) * 90);
-        cursorContainer.position.copy(position);
+
+
+
       }
 
       renderer.render(scene, camera);
