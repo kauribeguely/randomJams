@@ -41,6 +41,12 @@ const loader = new GLTFLoader();
   scene.add(objGroup);
 
 
+  for(let i = 0; i < 50; i++)
+  {
+    setTimeout(makeRandomAnimatable, i*600);
+
+  }
+
   let loopedGroup = [];
   // Create an empty geometry
 
@@ -73,7 +79,7 @@ const loader = new GLTFLoader();
 
         this.obj.position.x = this.animProgress * this.xSpeed;
         if(this.obj.position.x > 20) this.animProgress = 0;
-        this.obj.rotation.z = this.animProgress * toRad(-360);
+        // this.obj.rotation.z = this.animProgress * toRad(-360);
       }
     }
   }
@@ -119,7 +125,7 @@ const loader = new GLTFLoader();
   // makeSpiral(6, 0.5, 0x000000, 180);
   // makeSpiral(6, 0.5, 0x000000, 225);
 
-  manySpirals(10);
+  // manySpirals(10);
 
   // // let sine1 = sine(100, 20, offset, 10);
   // let sine1 = sine(500, 100, 0, 10);
@@ -133,8 +139,8 @@ const loader = new GLTFLoader();
 
   // loadStar();
 
-  let star1 = new AnimatableObj('obj/starThick.glb', 0.05, 1, 1, 0, 2);
-  let star2 = new AnimatableObj('obj/starThick.glb', 0.05, 1, 1, 45, 2);
+  // let star1 = new AnimatableObj('obj/starThick.glb', 0.05, 1, 1, 0, 2);
+  // let star2 = new AnimatableObj('obj/starThick.glb', 0.05, 1, 1, 45, 2);
 
 
 
@@ -549,8 +555,8 @@ document.onkeydown = function(evt)
 
       // if(star1)
       // {
-        star1.animate(delta);
-        star2.animate(delta);
+        // star1.animate(delta);
+        // star2.animate(delta);
       // }
 
 
