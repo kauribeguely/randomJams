@@ -14,6 +14,13 @@
       }
     }
   </script>
+  <style>
+  html
+  {
+      cursor: none;
+  }
+
+  </style>
 
   <script type="module">
   import * as THREE from 'three';
@@ -21,19 +28,23 @@
   import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     let scene, camera, renderer, cursorModel, mouse;
 
+    let percentX, percentY;
     // Initialize the scene
+    const cursorContainer = new THREE.Group();
+
     function init() {
       // Create the scene
       scene = new THREE.Scene();
       scene.background = new THREE.Color(0xffffff); // White background
 
       // Set up the camera
-      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.05, 1000);
       camera.position.z = 5;
 
       // Set up the renderer
       renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.shadowMap.enabled = true; // Enable shadows
       document.body.appendChild(renderer.domElement);
 
       // Add lighting
@@ -41,16 +52,28 @@
       light.position.set(10, 10, 10).normalize();
       scene.add(light);
 
+      const controls = new OrbitControls( camera, renderer.domElement );
+    controls.enableDamping = true;
+    controls.update();
+
+
+
+
+      scene.add(cursorContainer);
+      cursorContainer.rotation.x = toRad(90);
+      cursorContainer.rotation.y= toRad(45);
+
+
       // Load the GLTF cursor model
       const loader = new GLTFLoader();
-      loader.load(
-        'akacursor.glb', // Replace with your GLTF file path
+      // loader.load(        'akacursor.glb', // Replace with your GLTF file path
+      loader.load(        'akacursorthick.glb', // Replace with your GLTF file path
         (gltf) => {
           cursorModel = gltf.scene;
-          cursorModel.scale.set(0.2, 0.2, 0.2); // Scale it down if needed
-          cursorModel.rotation.x = toRad(90);
-          cursorModel.rotation.y= toRad(45);
-          scene.add(cursorModel);
+          cursorModel.scale.set(0.15, 0.15, 0.15); // Scale it down if needed
+          // cursorModel.rotation.x = toRad(90);
+          // cursorModel.rotation.z= toRad(90);
+          cursorContainer.add(cursorModel);
         },
         undefined,
         (error) => {
@@ -69,30 +92,40 @@
     }
 
     // Update mouse position
-    function onMouseMove(event) {
+    function onMouseMove(event)
+    {
       mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
       mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+      percentX = event.clientX / window.innerWidth;
+      percentY = event.clientY / window.innerHeight;
     }
 
     // Handle window resize
-    function onWindowResize() {
+    function onWindowResize()
+    {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
     // Animate the scene
-    function animate() {
+    function animate()
+    {
       requestAnimationFrame(animate);
 
       // Make the cursor model follow the mouse
-      if (cursorModel) {
+      // if (cursorModel)
+      if (cursorContainer)
+      {
         // Convert mouse coordinates to 3D space
         const vector = new THREE.Vector3(mouse.x, mouse.y, 0.5).unproject(camera);
         const direction = vector.sub(camera.position).normalize();
         const distance = -camera.position.z / direction.z;
         const position = camera.position.clone().add(direction.multiplyScalar(distance));
-        cursorModel.position.copy(position);
+        cursorModel.rotation.x =  toRad((percentY-0.5) * 30);
+        cursorModel.rotation.z =  -toRad((percentX-0.5) * 60);
+        // cursorModel.rotation.y =  toRad((percentX-0.5) * 90);
+        cursorContainer.position.copy(position);
       }
 
       renderer.render(scene, camera);
