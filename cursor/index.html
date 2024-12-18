@@ -31,6 +31,18 @@
     let orthographicAdapt = 1000;
 
     let percentX, percentY;
+    var keyXRot = false;
+    var keyYRot = false;
+    var keyZRot = false;
+    var keyZTrans = false;
+    var keyScale = false;
+    var keyPosZ = false;
+
+
+    let selectedObj;
+
+
+
     // Initialize the scene
     const cursorContainer = new THREE.Group();
 
@@ -69,9 +81,9 @@
         // plane.receiveShadow = true; // Enable shadow receiving
         // scene.add(plane);
 
-      const controls = new OrbitControls( camera, renderer.domElement );
-      controls.enableDamping = true;
-      controls.update();
+      // const controls = new OrbitControls( camera, renderer.domElement );
+      // controls.enableDamping = true;
+      // controls.update();
 
 
 
@@ -100,6 +112,8 @@
           // cursorModel.rotation.x = toRad(90);
           // cursorModel.rotation.z= toRad(90);
           cursorContainer.add(cursorModel);
+          selectedObj = cursorContainer;
+          // selectedObj = cursorModel;
         },
         undefined,
         (error) => {
@@ -172,6 +186,89 @@
   {
     return 0.0175*deg;
   }
+
+
+  document.onwheel = function(e)
+  {
+    if(e.wheelDelta > 0) //scroll up, away,
+    {
+      if(keyPosZ) selectedObj.position.y -= 0.1;
+      if(keyXRot) selectedObj.rotation.x -= toRad(5);
+      if(keyYRot) selectedObj.rotation.y -= toRad(5);
+      if(keyZRot) selectedObj.rotation.z -= toRad(5);
+      // if(keyScale) selectedObj.size -= 1;
+    }
+    else
+    {
+      if(keyPosZ) selectedObj.position.y += 0.1;
+      if(keyXRot) selectedObj.rotation.x += toRad(5);
+      if(keyYRot) selectedObj.rotation.y += toRad(5);
+      if(keyZRot) selectedObj.rotation.z += toRad(5);
+      // if(keyScale) selectedObj.size += 1;
+    }
+  }
+
+
+
+
+  document.onkeydown = function(e)
+  {
+    switch (e.key)
+    {
+
+      case "q":
+        keyXRot = true;
+        break;
+      case "w":
+        keyYRot = true;
+        break;
+      case "e":
+        keyZRot = true;
+        break;
+      case "f":
+        keyPosZ = true;
+        break;
+      case "1":
+        selectedObj = cursorContainer;
+        break;
+      case "2":
+        selectedObj = cursorModel;
+        break;
+    }
+  }
+
+
+  document.onkeyup = function(e)
+  {
+    switch (e.key)
+    {
+      case "q":
+        keyXRot = false;
+        break;
+      case "w":
+        keyYRot = false;
+        break;
+      case "e":
+        keyZRot = false;
+        break;
+      case "f":
+        keyPosZ = false;
+        break;
+    }
+  }
+
+  document.onmousedown = function(e)
+  {
+    cursorModel.rotation.x -= toRad(25);
+    cursorModel.position.y -= 0.3;
+  }
+
+  document.onmouseup = function(e)
+  {
+    cursorModel.rotation.x += toRad(25);
+    cursorModel.position.y += 0.3;
+  }
+
   </script>
 </head>
 <body style="margin: 0; overflow: hidden;"></body>
