@@ -52,7 +52,7 @@
       scene.background = new THREE.Color(0xffffff); // White background
 
       // Set up the camera
-      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.05, 1000);
+      camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.05, 1000);
       // camera = new THREE.OrthographicCamera( window.innerWidth / - orthographicAdapt, window.innerWidth / orthographicAdapt, window.innerHeight / orthographicAdapt, window.innerHeight / - orthographicAdapt, 1, 1000 );
 
       camera.position.z = 5;
@@ -168,8 +168,8 @@
         // cursorContainer.rotation.y =  toRad(-percentX * 90 + 45) + toRad(-percentY * 90);
 
 
-        // cursorModel.rotation.x =  toRad((percentY-0.5) * 30);
-        cursorModel.rotation.z =  -toRad((percentX-0.5) * 60);
+        // cursorModel.rotation.x =  toRad((percentY-0.5) * 15);
+        cursorModel.rotation.z =  -toRad((percentX-0.5) * 45);
         // cursorModel.rotation.y =  toRad((percentX-0.5) * 90);
 
 
@@ -259,14 +259,14 @@
 
   document.onmousedown = function(e)
   {
-    cursorModel.rotation.x -= toRad(25);
-    cursorModel.position.y -= 0.3;
+    cursorModel.rotation.x -= toRad(20);
+    cursorModel.position.y -= 0.2;
   }
 
   document.onmouseup = function(e)
   {
-    cursorModel.rotation.x += toRad(25);
-    cursorModel.position.y += 0.3;
+    cursorModel.rotation.x += toRad(20);
+    cursorModel.position.y += 0.2;
   }
 
   </script>
