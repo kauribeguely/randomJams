@@ -84,10 +84,11 @@
 
           fingers.forEach((fingerIndex, i) => {
             const distance = calculateDistance(thumbTip, landmarks[fingerIndex]);
-            distancesText += `Hand ${handIndex + 1} Finger ${i + 1}: ${distance} <br>`;
+            distancesText += `Hand ${handIndex + 1} Finger ${i + 1}: ${distance} Index: ${fingerIndex} <br>`;
             if(distance < 0.06)
             {
-              playSound();
+              playSound(handIndex, i+1); //send hand and finger number
+              // playSound();
             }
           });
 
@@ -114,37 +115,54 @@
 
 
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-  const soundFile = 'p1.ogg'; // Path to your sound file
-  let audioBuffer = null;
+    const soundFiles = [
+      'p1.ogg', // Sound for hand 1, finger 1
+      'p2.ogg', // Sound for hand 1, finger 2
+      'p3.ogg', // Sound for hand 1, finger 3
+      'p4.ogg', // Sound for hand 1, finger 4
+      'p5.ogg', // Sound for hand 2, finger 1
+      'p6.ogg', // Sound for hand 2, finger 2
+      'p7.ogg', // Sound for hand 2, finger 3
+      'p8.ogg', // Sound for hand 2, finger 4
+    ];
+    let audioBuffers = {}; // To store preloaded audio buffers
 
-  // Function to preload the sound
-  function preloadSound() {
-    fetch(soundFile)
-      .then(response => response.arrayBuffer())
-      .then(data => audioContext.decodeAudioData(data))
-      .then(buffer => {
-        audioBuffer = buffer; // Store the decoded audio buffer
-      })
-      .catch(error => console.error('Error preloading sound:', error));
-  }
-
-  // Function to play the sound
-  function playSound() {
-    if (audioBuffer) {
-      const source = audioContext.createBufferSource();
-      source.buffer = audioBuffer;
-      source.connect(audioContext.destination);
-      source.start(0); // Play immediately
-    } else {
-      console.error('Audio buffer is not loaded yet.');
+    // Preload all sounds
+    function preloadSounds() {
+      soundFiles.forEach((file, index) => {
+        fetch(file)
+          .then(response => response.arrayBuffer())
+          .then(data => audioContext.decodeAudioData(data))
+          .then(buffer => {
+            audioBuffers[index + 1] = buffer; // Map to index + 1 for easier reference
+          })
+          .catch(error => console.error(`Error preloading sound ${file}:`, error));
+      });
     }
-  }
 
-  // Preload the sound when the script runs
-  preloadSound();
+    // Function to play the sound
+    function playSound(handNumber, fingerNumber) {
+      // const fingerNumber = fingerNumber + 1;
+      const soundIndex = (handNumber) * 4 + fingerNumber; // Map hand and finger to file index
+      const audioBuffer = audioBuffers[soundIndex];
 
-  // Example usage: Call playSound() when needed
-  // playSound();
+      if (audioBuffer) {
+        const source = audioContext.createBufferSource();
+        source.buffer = audioBuffer;
+        source.connect(audioContext.destination);
+        source.start(0); // Play immediately
+      } else {
+        console.error(`Audio buffer not loaded for hand ${handNumber}, finger ${fingerNumber}`);
+      }
+    }
+
+    // Preload sounds when the script runs
+    preloadSounds();
+
+    // Example usage
+    // playSound(1, 1); // Plays 'p1.ogg'
+    // playSound(2, 3); // Plays 'p7.ogg'
+
 
 
   </script>
