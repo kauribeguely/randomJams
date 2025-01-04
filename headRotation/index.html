@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Face Rotation</title>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+    #output {
+      font-size: 20px;
+      margin-top: 20px;
+    }
+    canvas {
+      display: block;
+      margin: 0 auto;
+    }
+    video
+    {
+      transform: scaleX(-1);
+
+    }
+  </style>
+</head>
+<body>
+  <h1>Live Face Rotation (Yaw and Pitch)</h1>
+  <div id="output">
+    <p><strong>Yaw (Y Rotation):</strong> <span id="yaw">0</span>°</p>
+    <p><strong>Pitch (X Rotation):</strong> <span id="pitch">0</span>°</p>
+    <p><strong>Roll (Z Rotation):</strong> <span id="roll">0</span>°</p>
+
+  </div>
+  <video id="video" autoplay muted playsinline width="640" height="480"></video>
+
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh"></script>
+  <script>
+    const video = document.getElementById('video');
+    const yawDisplay = document.getElementById('yaw');
+    const pitchDisplay = document.getElementById('pitch');
+    const rollDisplay = document.getElementById('roll');
+
+    // Initialize an array to store positions
+    const positionsArray = [];
+
+    // Function to calculate yaw and pitch
+    function calculateRotations(landmarks) {
+      const { nose, leftEye, rightEye } = landmarks;
+
+      // Calculate yaw (horizontal rotation) Y AXIS
+      // const yaw = Math.atan2(
+      //   leftEye.x - rightEye.x,
+      //   leftEye.y + rightEye.y
+      // );
+      const yaw = Math.atan2(
+        rightEye.z - leftEye.z,
+        rightEye.x - leftEye.x
+      );
+
+      // Calculate pitch (vertical rotation) X AXIS
+      const pitch = Math.atan2(
+        nose.y - (leftEye.y + rightEye.y) / 2,
+        nose.z
+      );
+
+      // Calculate roll (Z rotation)
+      let roll = Math.atan2(
+        leftEye.y - rightEye.y,
+        leftEye.x - rightEye.x
+      );
+
+
+      // Convert radians to degrees and normalize
+      roll = (roll * 180) / Math.PI;
+      if(roll > 0) roll = 180-roll;
+      if(roll < 0) roll = (180+roll)*-1;
+      // roll = (roll + 360) % 360; // Normalize to 0-360
+      // if (roll > 180) roll -= 360; // Convert to -180 to 180 range
+
+      // Convert radians to degrees
+      return {
+        yaw: (yaw * 180) / Math.PI ,
+        pitch: (pitch * 180) / Math.PI - 115,
+        roll: roll
+     };
+    }
+
+    // Function to update rotations on the screen
+    function updateRotationDisplay(rotations) {
+      yawDisplay.textContent = rotations.yaw.toFixed(2);
+      pitchDisplay.textContent = rotations.pitch.toFixed(2);
+      rollDisplay.textContent = rotations.roll.toFixed(2);
+    }
+
+    // Start video stream
+    async function startVideo() {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      video.srcObject = stream;
+    }
+
+    startVideo();
+
+    // Initialize Mediapipe FaceMesh
+    const faceMesh = new FaceMesh({
+      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+    });
+
+    faceMesh.setOptions({
+      maxNumFaces: 1,
+      refineLandmarks: true,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5
+    });
+
+    faceMesh.onResults((results) => {
+      if (results.multiFaceLandmarks.length > 0) {
+        const landmarks = results.multiFaceLandmarks[0];
+
+        // Extract required landmarks
+        const data = {
+          nose: { x: landmarks[1].x, y: landmarks[1].y, z: landmarks[1].z },
+          leftEye: { x: landmarks[33].x, y: landmarks[33].y, z: landmarks[33].z },
+          rightEye: { x: landmarks[263].x, y: landmarks[263].y, z: landmarks[263].z }
+        };
+
+        // Calculate rotations
+        const rotations = calculateRotations(data);
+
+        // Update rotation values on screen
+        updateRotationDisplay(rotations);
+      }
+    });
+
+    // Start Mediapipe with the video element
+    const camera = new Camera(video, {
+      onFrame: async () => {
+        await faceMesh.send({ image: video });
+      },
+      width: 640,
+      height: 480
+    });
+    camera.start();
+
+    // Add event listeners for Spacebar and Enter keys
+    // window.addEventListener('keydown', (e) => {
+    //   if (e.code === 'Space') {
+    //     const landmarks = results.multiFaceLandmarks[0];
+    //     if (landmarks) {
+    //       const position = {
+    //         nose: { x: landmarks[1].x, y: landmarks[1].y, z: landmarks[1].z },
+    //         leftEye: { x: landmarks[33].x, y: landmarks[33].y, z: landmarks[33].z },
+    //         rightEye: { x: landmarks[263].x, y: landmarks[263].y, z: landmarks[263].z }
+    //       };
+    //       positionsArray.push(position);
+    //       console.log('Position added:', position);
+    //     }
+    //   } else if (e.code === 'Enter') {
+    //     console.log('All positions:', JSON.stringify(positionsArray, null, 2));
+    //   }
+    // });
+  </script>
+</body>
+</html>
