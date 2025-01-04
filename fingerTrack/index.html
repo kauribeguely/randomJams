@@ -190,6 +190,9 @@
       });
     }
 
+    let transposeNum = 2 * (2 ** (2 / 12));
+    // let transposeNum = 2 ** (-11 / 12);
+
     // Function to play the sound
     function playSound(handNumber, fingerNumber) {
       let soundIndex = 0;
@@ -199,14 +202,14 @@
       {
         soundIndex = 5 - fingerNumber;
         if (wristOneY > 0.5) {
-          handTranspose = 2; // Transpose up an octave
+          handTranspose = transposeNum; // Transpose up an octave
         }
       }
       else
       {
         soundIndex = fingerNumber + 4;
         if (wristTwoY > 0.5) {
-          handTranspose = 2; // Transpose up an octave
+          handTranspose = transposeNum; // Transpose up an octave
         }
       }
 
