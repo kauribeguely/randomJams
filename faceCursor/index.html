@@ -31,6 +31,10 @@
         z-index: 100;
         transition: all 0.05s ease-out;
     }
+    .absolute
+    {
+      position:absolute;
+    }
   </style>
 </head>
 <body>
@@ -241,6 +245,25 @@
 
       // test.textContent = `xPos: ${xRange} yPos: ${yRange}`;
     }
+
+
+    // Event listener for spacebar key press
+    document.addEventListener('keydown', function(event) {
+        if (event.key === ' ') {
+            // Create a new img element
+            const img = document.createElement('img');
+            img.src = 'akacodescursor.png'; // Set the image source
+            img.classList.add('absolute'); // Add the absolute class (without ID)
+
+            // Set the position of the image based on the cursor position (xPos, yPos)
+            img.style.position = 'absolute'; // Ensure the image is positioned absolutely
+            img.style.left = `${prevX}px`; // Set left position
+            img.style.top = `${prevY}px`; // Set top position
+
+            // Append the image to the body (or any container of your choice)
+            document.body.appendChild(img);
+        }
+    });
 
 
   </script>
