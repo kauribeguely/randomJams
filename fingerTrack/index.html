@@ -90,6 +90,13 @@
               playSound(handIndex, i+1); //send hand and finger number
               // playSound();
             }
+            else
+            {
+              if(activeSounds.size > 0)
+              {
+                stopSound(handIndex, i+1); //send hand and finger number
+              }
+            }
           });
 
           // Draw landmarks and connections
@@ -126,6 +133,7 @@
       'p8.ogg', // Sound for hand 2, finger 4
     ];
     let audioBuffers = {}; // To store preloaded audio buffers
+    const activeSounds = new Map();
 
     // Preload all sounds
     function preloadSounds() {
@@ -159,9 +167,30 @@
         const source = audioContext.createBufferSource();
         source.buffer = audioBuffer;
         source.connect(audioContext.destination);
-        source.start(0); // Play immediately
+
+        // Store the source in the map with a unique key
+        const key = `${handNumber}-${fingerNumber}`;
+        if (!activeSounds.has(key)) {
+          activeSounds.set(key, source);
+          source.start(0); // Play immediately
+        }
+
+
       } else {
         console.error(`Audio buffer not loaded for hand ${handNumber}, finger ${fingerNumber}`);
+      }
+    }
+
+    function stopSound(handNumber, fingerNumber)
+    {
+      const key = `${handNumber}-${fingerNumber}`;
+      const source = activeSounds.get(key);
+
+      if (source) {
+        source.stop(0); // Stop the sound immediately
+        activeSounds.delete(key); // Remove it from the map
+      } else {
+        console.warn(`No active sound for hand ${handNumber}, finger ${fingerNumber}`);
       }
     }
 
