@@ -161,34 +161,42 @@
 
 
     //todo can use these values in a calibration phase
-    let yRotateRange = 20;
-    let xLowest = -5;
-    let xHighest = 10;
+    const yRotateRange = 20;
+    const xLowest = -5;
+    const xHighest = 10;
 
     let prevX = 0;
     let prevY = 0;
+
+    const minDistanceToUpdate = 20;
 
     function updateCursorPosition(rotations)
     {
       //0-1 value based on -30 to 30
       const xRange = -rotations.yaw/yRotateRange; //-1 to 1
       const xPos = (xRange/2 + 0.5) * screenW; // 0 to 1
-      const xDif = (xPos - prevX)/screenW;
+      // const xDif = (xPos - prevX)/screenW;
+      const xDif = (xPos - prevX);
 
       // Dynamic smoothing for X
       const xSmoothingFactor = 0.5 + Math.min(Math.abs(xDif), 0.5) * 0.2; // Adjust based on the difference
       const smoothedX = prevX + (xPos - prevX) * xSmoothingFactor;
+      test.textContent = `xDif: ${xDif}`;
 
       // Update cursor position for X
       // cursor.style.left = smoothedX + 'px';
-
-      cursor.style.left = xPos+'px';
+      if(Math.abs(xDif) > minDistanceToUpdate)
+      {
+        cursor.style.left = xPos+'px';
+        prevX = xPos;
+      }
 
       //0-1 value based on -5 to 15  15 = 0 and -5 = 1
       const yRange = -(rotations.pitch - xHighest) / Math.abs(xHighest - xLowest); //-1 to 1
       // let yRange = -(rotations.pitch+xLowest) / Math.abs(xHighest - xLowest) ; //-1 to 1
       const yPos = yRange * screenH; // 0 to 1
-      const yDif = (yPos - prevY)/screenH;
+      const yDif = (yPos - prevY);
+      // const yDif = (yPos - prevY)/screenH;
 
 
       // Dynamic smoothing for Y
@@ -197,14 +205,16 @@
 
       // Update cursor position for Y
       // cursor.style.top = smoothedY + 'px';
-      cursor.style.top = yPos+'px';
+      if(Math.abs(xDif) > minDistanceToUpdate)
+      {
+        cursor.style.top = yPos+'px';
+        prevY = yPos;
+      }
 
       // console.log(`xPos: ${xRange} yPos: ${yRange}`);
       // test.textContent = `xPos: ${xRange}`;
-      test.textContent = `yPos: ${yRange}`;
+      // test.textContent = `yPos: ${yRange}`;
 
-      prevX = xPos;
-      prevY = yPos;
       // test.textContent = `xPos: ${xRange} yPos: ${yRange}`;
     }
 
