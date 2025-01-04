@@ -50,6 +50,8 @@
     const canvasCtx = canvasElement.getContext('2d');
     const distanceLabel = document.getElementById('distance-label');
 
+    let wristOneY, wristTwoY;
+
     // Initialize MediaPipe Hands
     const hands = new Hands({
       locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`,
@@ -78,27 +80,45 @@
 
       let distancesText = '';
       let yPosNormalized;
-      if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-        const hand = results.multiHandLandmarks[0];
-        // Example: Use the y position of the wrist (landmark index 0)
-        const wrist = hand[0];  // wrist is at index 0 in the landmarks array
-        const screenHeight = window.innerHeight;
+      // if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+      //   const hand = results.multiHandLandmarks[0];
+      //   // Example: Use the y position of the wrist (landmark index 0)
+      //   const wrist1 = hand[0];  // wrist is at index 0 in the landmarks array
+      //   let wrist2;
+      //   if (results.multiHandLandmarks && results.multiHandLandmarks.length > 1)
+      //   {
+      //     const hand2 = results.multiHandLandmarks[1];
+      //     wrist2 = hand2[0];  // wrist is at index 0 in the landmarks array
+      //   }
+      //
+      //   const screenHeight = window.innerHeight;
+      //
+      //   // Normalized y position (from 0 to 1)
+      //   wristOneY = 1 - (wrist1.y - 0.3);
+      //   if(wrist2) wristTwoY = 1 - (wrist2.y - 0.3);
+      //   const volume = wristOneY * 3;
+      //
+      //   // mainGain.gain.setValueAtTime(volume, audioContext.currentTime);  // Adjust volume in real time
+      //
+      //
+      //   // If you want the position in pixels, you can use:
+      //   const yPosPixels = wristOneY * screenHeight;
+      // }
 
-        // Normalized y position (from 0 to 1)
-        yPosNormalized = 1 - (wrist.y - 0.3);
-        const volume = yPosNormalized * 3;
-        mainGain.gain.setValueAtTime(volume, audioContext.currentTime);  // Adjust volume in real time
-
-
-        // If you want the position in pixels, you can use:
-        const yPosPixels = yPosNormalized * screenHeight;
-      }
-
-      distancesText = 'yPos: '+yPosNormalized;
+      distancesText = 'yPos: '+wristOneY;
       if (results.multiHandLandmarks) {
         results.multiHandLandmarks.forEach((landmarks, handIndex) => {
           const thumbTip = landmarks[4];
           const fingers = [8, 12, 16, 20]; // Fingertips of index, middle, ring, pinky fingers
+
+          if(handIndex == 0)
+          {
+            wristOneY = 1 - thumbTip.y;
+          }
+          else
+          {
+            wristTwoY = 1 - thumbTip.y;
+          }
 
           fingers.forEach((fingerIndex, i) => {
             const distance = calculateDistance(thumbTip, landmarks[fingerIndex]);
@@ -142,6 +162,7 @@
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     const mainGain = audioContext.createGain();
     mainGain.connect(audioContext.destination);
+    mainGain.gain.setValueAtTime(2.5, audioContext.currentTime);
 
     const soundFiles = [
       'p1.ogg', // Sound for hand 1, finger 1
@@ -172,14 +193,23 @@
     // Function to play the sound
     function playSound(handNumber, fingerNumber) {
       let soundIndex = 0;
+      let handGain;
+      let handTranspose = 1;
       if(handNumber == 0) //hand 1
       {
         soundIndex = 5 - fingerNumber;
+        if (wristOneY > 0.5) {
+          handTranspose = 2; // Transpose up an octave
+        }
       }
       else
       {
         soundIndex = fingerNumber + 4;
+        if (wristTwoY > 0.5) {
+          handTranspose = 2; // Transpose up an octave
+        }
       }
+
       soundIndex = soundFiles.length - soundIndex+1;
       // const soundIndex = (handNumber) * 4 + fingerNumber; // Map hand and finger to file index
       const audioBuffer = audioBuffers[soundIndex];
@@ -187,6 +217,8 @@
       if (audioBuffer) {
         const gainNode = audioContext.createGain();
         const source = audioContext.createBufferSource();
+
+        source.playbackRate.setValueAtTime(handTranspose, audioContext.currentTime);
         source.buffer = audioBuffer;
         source.connect(gainNode);
         // gainNode.connect(audioContext.destination);
