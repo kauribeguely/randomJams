@@ -85,11 +85,15 @@
           fingers.forEach((fingerIndex, i) => {
             const distance = calculateDistance(thumbTip, landmarks[fingerIndex]);
             distancesText += `Hand ${handIndex + 1} Finger ${i + 1}: ${distance} <br>`;
+            if(distance < 0.06)
+            {
+              playSound();
+            }
           });
 
           // Draw landmarks and connections
           // drawConnectors(canvasCtx, landmarks, Hands.HAND_CONNECTIONS, { color: '#00FF00', lineWidth: 1 });
-          drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', lineWidth: 0.5 });
+          // drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', lineWidth: 0.5 });
         });
       }
 
@@ -106,6 +110,43 @@
       height: 480,
     });
     camera.start();
+
+
+
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  const soundFile = 'p1.ogg'; // Path to your sound file
+  let audioBuffer = null;
+
+  // Function to preload the sound
+  function preloadSound() {
+    fetch(soundFile)
+      .then(response => response.arrayBuffer())
+      .then(data => audioContext.decodeAudioData(data))
+      .then(buffer => {
+        audioBuffer = buffer; // Store the decoded audio buffer
+      })
+      .catch(error => console.error('Error preloading sound:', error));
+  }
+
+  // Function to play the sound
+  function playSound() {
+    if (audioBuffer) {
+      const source = audioContext.createBufferSource();
+      source.buffer = audioBuffer;
+      source.connect(audioContext.destination);
+      source.start(0); // Play immediately
+    } else {
+      console.error('Audio buffer is not loaded yet.');
+    }
+  }
+
+  // Preload the sound when the script runs
+  preloadSound();
+
+  // Example usage: Call playSound() when needed
+  // playSound();
+
+
   </script>
 </body>
 </html>
