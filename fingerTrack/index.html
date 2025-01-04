@@ -10,11 +10,10 @@
   <style>
     canvas {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 200px; /* Set the video width */
-      height: 150px; /* Set the video height */
+      width: 1000px; /* Set the video width */
+      height: 750px; /* Set the video height */
       transform: scaleX(-1);
+      z-index: 2;
     }
     .distance-label {
       position: absolute;
@@ -26,17 +25,28 @@
       padding: 10px;
       border-radius: 5px;
     }
-
+    video {
+    transform: scaleX(-1); /* Mirror the video horizontally */
+    top: 20%;
+    left: 20%;
+    width: 1000px; /* Set the video width */
+    height: 750px; /* Set the video height */
+    position: absolute; /* Position the video */
+    top: 10px; /* Adjust the position from the top */
+    left: 10px; /* Adjust the position from the left */
+    <!-- z-index: 10; /* Ensure it appears above other elements */ -->
+    <!-- display: none; -->
+  }
   </style>
 </head>
 <body>
-  <video id="input_video" style="display:none"autoplay muted></video>
+  <video id="input_video" autoplay muted></video>
   <canvas id="output_canvas"></canvas>
   <div class="distance-label" id="distance-label">Calculating distances...</div>
 
   <script>
-    const videoElement = document.getElementById('input_video');
     const canvasElement = document.getElementById('output_canvas');
+    const videoElement = document.getElementById('input_video');
     const canvasCtx = canvasElement.getContext('2d');
     const distanceLabel = document.getElementById('distance-label');
 
@@ -64,7 +74,7 @@
     hands.onResults((results) => {
       canvasCtx.save();
       canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-      canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+      // canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
 
       let distancesText = '';
       if (results.multiHandLandmarks) {
@@ -78,8 +88,8 @@
           });
 
           // Draw landmarks and connections
-          drawConnectors(canvasCtx, landmarks, Hands.HAND_CONNECTIONS, { color: '#00FF00', lineWidth: 2 });
-          drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', lineWidth: 2 });
+          // drawConnectors(canvasCtx, landmarks, Hands.HAND_CONNECTIONS, { color: '#00FF00', lineWidth: 1 });
+          drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', lineWidth: 0.5 });
         });
       }
 
