@@ -29,7 +29,7 @@
     {
         position:absolute;
         z-index: 100;
-        transition: all 0.1s ease-out;
+        transition: all 0.05s ease-out;
     }
   </style>
 </head>
@@ -168,48 +168,72 @@
     let prevX = 0;
     let prevY = 0;
 
-    const minDistanceToUpdate = 20;
+    const minDistanceToUpdate = 50;
 
     function updateCursorPosition(rotations)
     {
-      //0-1 value based on -30 to 30
-      const xRange = -rotations.yaw/yRotateRange; //-1 to 1
-      const xPos = (xRange/2 + 0.5) * screenW; // 0 to 1
-      // const xDif = (xPos - prevX)/screenW;
-      const xDif = (xPos - prevX);
+      const xRange = -rotations.yaw / yRotateRange; // -1 to 1
+      const xPos = (xRange / 2 + 0.5) * screenW; // 0 to screen width
+      const xDif = Math.abs(xPos - prevX);
 
+      let smootherX = 0.1;
+      if(xDif < minDistanceToUpdate)
+      {
+        smootherX = 0.001;
+      }
       // Dynamic smoothing for X
-      const xSmoothingFactor = 0.5 + Math.min(Math.abs(xDif), 0.5) * 0.2; // Adjust based on the difference
-      const smoothedX = prevX + (xPos - prevX) * xSmoothingFactor;
+      const xSmoothingFactor = smootherX + Math.min(xDif, 0.5) * 0.2; // Adjust based on the difference
+      const smoothedX = prevX + (xPos - prevX) * xSmoothingFactor; // Smooth based on the difference
+
       test.textContent = `xDif: ${xDif}`;
 
       // Update cursor position for X
       // cursor.style.left = smoothedX + 'px';
-      if(Math.abs(xDif) > minDistanceToUpdate)
+
+      // Update the previous position for the next frame
+      // if(xDif < minDistanceToUpdate)
+      // {
+        cursor.style.left = smoothedX + 'px';
+      // }
+      // else
+      // {
+      //   cursor.style.left = xPos + 'px';
+      // }
+
+      prevX = smoothedX;
+
+
+      // Calculate the range for Y (normalized value based on pitch)
+      const yRange = -(rotations.pitch - xHighest) / Math.abs(xHighest - xLowest); // -1 to 1
+      const yPos = yRange * screenH; // 0 to screen height
+
+      // Calculate the difference for Y
+      const yDif = Math.abs(yPos - prevY);
+
+      let smootherY = 0.1;
+      if(yDif < minDistanceToUpdate)
       {
-        cursor.style.left = xPos+'px';
-        prevX = xPos;
+        smootherY = 0.001;
       }
-
-      //0-1 value based on -5 to 15  15 = 0 and -5 = 1
-      const yRange = -(rotations.pitch - xHighest) / Math.abs(xHighest - xLowest); //-1 to 1
-      // let yRange = -(rotations.pitch+xLowest) / Math.abs(xHighest - xLowest) ; //-1 to 1
-      const yPos = yRange * screenH; // 0 to 1
-      const yDif = (yPos - prevY);
-      // const yDif = (yPos - prevY)/screenH;
-
 
       // Dynamic smoothing for Y
-      const ySmoothingFactor = 0.5 + Math.min(Math.abs(yDif), 0.5) * 0.2; // Adjust based on the difference
-      const smoothedY = prevY + (yPos - prevY) * ySmoothingFactor;
+      const ySmoothingFactor = smootherY + Math.min(yDif, 0.5) * 0.2; // Adjust based on the difference
+      const smoothedY = prevY + (yPos - prevY) * ySmoothingFactor; // Smooth the transition
 
       // Update cursor position for Y
-      // cursor.style.top = smoothedY + 'px';
-      if(Math.abs(xDif) > minDistanceToUpdate)
-      {
-        cursor.style.top = yPos+'px';
-        prevY = yPos;
-      }
+      // if(yDif < minDistanceToUpdate)
+      // {
+        cursor.style.top = smoothedY + 'px';
+      // }
+      // else
+      // {
+      //   cursor.style.top = yPos + 'px';
+      // }
+
+      // Update the previous position for the next frame
+      prevY = smoothedY;
+
+      // }
 
       // console.log(`xPos: ${xRange} yPos: ${yRange}`);
       // test.textContent = `xPos: ${xRange}`;
