@@ -77,6 +77,24 @@
       // canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
 
       let distancesText = '';
+      let yPosNormalized;
+      if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+        const hand = results.multiHandLandmarks[0];
+        // Example: Use the y position of the wrist (landmark index 0)
+        const wrist = hand[0];  // wrist is at index 0 in the landmarks array
+        const screenHeight = window.innerHeight;
+
+        // Normalized y position (from 0 to 1)
+        yPosNormalized = 1 - (wrist.y - 0.3);
+        const volume = yPosNormalized * 3;
+        mainGain.gain.setValueAtTime(volume, audioContext.currentTime);  // Adjust volume in real time
+
+
+        // If you want the position in pixels, you can use:
+        const yPosPixels = yPosNormalized * screenHeight;
+      }
+
+      distancesText = 'yPos: '+yPosNormalized;
       if (results.multiHandLandmarks) {
         results.multiHandLandmarks.forEach((landmarks, handIndex) => {
           const thumbTip = landmarks[4];
@@ -122,6 +140,9 @@
 
 
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const mainGain = audioContext.createGain();
+    mainGain.connect(audioContext.destination);
+
     const soundFiles = [
       'p1.ogg', // Sound for hand 1, finger 1
       'p2.ogg', // Sound for hand 1, finger 2
@@ -164,13 +185,18 @@
       const audioBuffer = audioBuffers[soundIndex];
 
       if (audioBuffer) {
+        const gainNode = audioContext.createGain();
         const source = audioContext.createBufferSource();
         source.buffer = audioBuffer;
-        source.connect(audioContext.destination);
+        source.connect(gainNode);
+        // gainNode.connect(audioContext.destination);
+        gainNode.connect(mainGain);
+        // source.connect(audioContext.destination);
 
         // Store the source in the map with a unique key
         const key = `${handNumber}-${fingerNumber}`;
         if (!activeSounds.has(key)) {
+          source.gainNode = gainNode; // Attach gain node to source for fade-out
           activeSounds.set(key, source);
           source.start(0); // Play immediately
         }
@@ -181,14 +207,20 @@
       }
     }
 
-    function stopSound(handNumber, fingerNumber)
-    {
+    function stopSound(handNumber, fingerNumber) {
       const key = `${handNumber}-${fingerNumber}`;
       const source = activeSounds.get(key);
 
       if (source) {
-        source.stop(0); // Stop the sound immediately
-        activeSounds.delete(key); // Remove it from the map
+        const gainNode = source.gainNode; // Gain node associated with the source
+        if (gainNode) {
+          // Gradually reduce the volume to 0
+          gainNode.gain.setTargetAtTime(0.0, audioContext.currentTime, 0.1); // Decay over 0.1 seconds
+        }
+
+        // Schedule the stop after the fade-out
+        source.stop(audioContext.currentTime + 0.5); // Delay to allow fade-out
+        activeSounds.delete(key); // Remove it from the map after stopping
       } else {
         console.warn(`No active sound for hand ${handNumber}, finger ${fingerNumber}`);
       }
