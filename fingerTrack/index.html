@@ -105,7 +105,7 @@
       //   const yPosPixels = wristOneY * screenHeight;
       // }
 
-      distancesText = 'yPos: '+wristOneY;
+      // distancesText = 'yPos: '+wristOneY;
       if (results.multiHandLandmarks) {
         results.multiHandLandmarks.forEach((landmarks, handIndex) => {
           const thumbTip = landmarks[4];
@@ -119,6 +119,8 @@
           {
             wristTwoY = 1 - thumbTip.y;
           }
+
+          distancesText += 'Hand1Y: '+wristOneY+ 'Hand2Y: '+wristTwoY+'<br>'
 
           fingers.forEach((fingerIndex, i) => {
             const distance = calculateDistance(thumbTip, landmarks[fingerIndex]);
@@ -190,26 +192,35 @@
       });
     }
 
-    let transposeNum = 2 * (2 ** (2 / 12));
+    // const transposeNum = 2 * (2 ** (2 / 12));
+    let handTranspose = 1; //no transpose
+    const lowTranspose = 0.5 * (2 ** (-1 / 12)); // Example low transpose value
+    const highTranspose = 2 * (2 ** (2 / 12)); // Example high transpose value
+    // const transposeNum = 1; // This could be a base transpose or another value you need
     // let transposeNum = 2 ** (-11 / 12);
 
     // Function to play the sound
     function playSound(handNumber, fingerNumber) {
       let soundIndex = 0;
       let handGain;
-      let handTranspose = 1;
-      if(handNumber == 0) //hand 1
-      {
+
+      if (handNumber == 0) { // Hand 1
         soundIndex = 5 - fingerNumber;
-        if (wristOneY > 0.5) {
-          handTranspose = transposeNum; // Transpose up an octave
+        if (wristOneY >= 0 && wristOneY <= 0.33) {
+          handTranspose = lowTranspose; // Transpose to low value
+        } else if (wristOneY > 0.33 && wristOneY <= 0.66) {
+          handTranspose = 1; // Transpose to middle value (1)
+        } else if (wristOneY > 0.66) {
+          handTranspose = highTranspose; // Transpose to high value
         }
-      }
-      else
-      {
+      } else { // Hand 2
         soundIndex = fingerNumber + 4;
-        if (wristTwoY > 0.5) {
-          handTranspose = transposeNum; // Transpose up an octave
+        if (wristTwoY >= 0 && wristTwoY <= 0.33) {
+          handTranspose = lowTranspose; // Transpose to low value
+        } else if (wristTwoY > 0.33 && wristTwoY <= 0.66) {
+          handTranspose = 1; // Transpose to middle value (1)
+        } else if (wristTwoY > 0.66) {
+          handTranspose = highTranspose; // Transpose to high value
         }
       }
 
