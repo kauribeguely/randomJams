@@ -142,8 +142,17 @@
 
     // Function to play the sound
     function playSound(handNumber, fingerNumber) {
-      // const fingerNumber = fingerNumber + 1;
-      const soundIndex = (handNumber) * 4 + fingerNumber; // Map hand and finger to file index
+      let soundIndex = 0;
+      if(handNumber == 0) //hand 1
+      {
+        soundIndex = 5 - fingerNumber;
+      }
+      else
+      {
+        soundIndex = fingerNumber + 4;
+      }
+      soundIndex = soundFiles.length - soundIndex+1;
+      // const soundIndex = (handNumber) * 4 + fingerNumber; // Map hand and finger to file index
       const audioBuffer = audioBuffers[soundIndex];
 
       if (audioBuffer) {
