@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hand Finger Distance Tracker</title>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+  <style>
+    canvas {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 200px; /* Set the video width */
+      height: 150px; /* Set the video height */
+      transform: scaleX(-1);
+    }
+    .distance-label {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: white;
+      font-size: 18px;
+      background-color: rgba(0, 0, 0, 0.5);
+      padding: 10px;
+      border-radius: 5px;
+    }
+
+  </style>
+</head>
+<body>
+  <video id="input_video" style="display:none"autoplay muted></video>
+  <canvas id="output_canvas"></canvas>
+  <div class="distance-label" id="distance-label">Calculating distances...</div>
+
+  <script>
+    const videoElement = document.getElementById('input_video');
+    const canvasElement = document.getElementById('output_canvas');
+    const canvasCtx = canvasElement.getContext('2d');
+    const distanceLabel = document.getElementById('distance-label');
+
+    // Initialize MediaPipe Hands
+    const hands = new Hands({
+      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`,
+    });
+    hands.setOptions({
+      maxNumHands: 2,
+      modelComplexity: 1,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5,
+    });
+
+    // Function to calculate the Euclidean distance
+    function calculateDistance(point1, point2) {
+      return Math.sqrt(
+        Math.pow(point1.x - point2.x, 2) +
+        Math.pow(point1.y - point2.y, 2) +
+        Math.pow(point1.z - point2.z, 2)
+      ).toFixed(2);
+    }
+
+    // Process hands and calculate distances
+    hands.onResults((results) => {
+      canvasCtx.save();
+      canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+      canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+
+      let distancesText = '';
+      if (results.multiHandLandmarks) {
+        results.multiHandLandmarks.forEach((landmarks, handIndex) => {
+          const thumbTip = landmarks[4];
+          const fingers = [8, 12, 16, 20]; // Fingertips of index, middle, ring, pinky fingers
+
+          fingers.forEach((fingerIndex, i) => {
+            const distance = calculateDistance(thumbTip, landmarks[fingerIndex]);
+            distancesText += `Hand ${handIndex + 1} Finger ${i + 1}: ${distance} <br>`;
+          });
+
+          // Draw landmarks and connections
+          drawConnectors(canvasCtx, landmarks, Hands.HAND_CONNECTIONS, { color: '#00FF00', lineWidth: 2 });
+          drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', lineWidth: 2 });
+        });
+      }
+
+      distanceLabel.innerHTML = distancesText || 'No hands detected.';
+      canvasCtx.restore();
+    });
+
+    // Set up the camera
+    const camera = new Camera(videoElement, {
+      onFrame: async () => {
+        await hands.send({ image: videoElement });
+      },
+      width: 640,
+      height: 480,
+    });
+    camera.start();
+  </script>
+</body>
+</html>
