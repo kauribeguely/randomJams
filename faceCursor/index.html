@@ -133,6 +133,12 @@
       minTrackingConfidence: 0.5
     });
 
+
+    const LEFTEYE = 33;
+    const RIGHTEYE = 263;
+    const LEFTEAR = 234;
+    const RIGHTEAR = 454;
+
     faceMesh.onResults((results) => {
       if (results.multiFaceLandmarks.length > 0) {
         const landmarks = results.multiFaceLandmarks[0];
@@ -140,12 +146,33 @@
         // Extract required landmarks
         const data = {
           nose: { x: landmarks[1].x, y: landmarks[1].y, z: landmarks[1].z },
-          leftEye: { x: landmarks[33].x, y: landmarks[33].y, z: landmarks[33].z },
-          rightEye: { x: landmarks[263].x, y: landmarks[263].y, z: landmarks[263].z }
+          leftEye: { x: landmarks[LEFTEAR].x, y: landmarks[LEFTEAR].y, z: landmarks[LEFTEAR].z },
+          rightEye: { x: landmarks[RIGHTEAR].x, y: landmarks[RIGHTEAR].y, z: landmarks[RIGHTEAR].z },
+          leftEyeBlink: {
+            top: { x: landmarks[386].x, y: landmarks[386].y, z: landmarks[386].z }, // Top of left eye
+            bottom: { x: landmarks[374].x, y: landmarks[374].y, z: landmarks[374].z }, // Bottom of left eye
+          }
         };
+
+        //TODO distance from top and bottom of each eye for blink
+        // const data =
+        // {
+        //   leftEye: {
+        //     top: { x: landmarks[386].x, y: landmarks[386].y, z: landmarks[386].z }, // Top of left eye
+        //     bottom: { x: landmarks[374].x, y: landmarks[374].y, z: landmarks[374].z }, // Bottom of left eye
+        //   },
+        //   rightEye: {
+        //     top: { x: landmarks[159].x, y: landmarks[159].y, z: landmarks[159].z }, // Top of right eye
+        //     bottom: { x: landmarks[145].x, y: landmarks[145].y, z: landmarks[145].z }, // Bottom of right eye
+        //   },
+        // };
 
         // Calculate rotations
         const rotations = calculateRotations(data);
+        const eyeLidDistance = calculateDistance(data.leftEyeBlink.top, data.leftEyeBlink.bottom);
+        if(eyeLidDistance < 0.02) eyesClose();
+        t('lidDistance: ' +eyeLidDistance);
+
 
         // Update rotation values on screen
         updateRotationDisplay(rotations);
@@ -163,6 +190,21 @@
     });
     camera.start();
 
+
+    function eyesClose()
+    {
+      addImageAtCursor();
+    }
+
+    // Function to calculate the Euclidean distance
+    function calculateDistance(point1, point2)
+    {
+      return Math.sqrt(
+        Math.pow(point1.x - point2.x, 2) +
+        Math.pow(point1.y - point2.y, 2) +
+        Math.pow(point1.z - point2.z, 2)
+      ).toFixed(2);
+    }
 
     //todo can use these values in a calibration phase
     const yRotateRange = 20;
@@ -189,7 +231,7 @@
       const xSmoothingFactor = smootherX + Math.min(xDif, 0.5) * 0.2; // Adjust based on the difference
       const smoothedX = prevX + (xPos - prevX) * xSmoothingFactor; // Smooth based on the difference
 
-      test.textContent = `xDif: ${xDif}`;
+      // test.textContent = `xDif: ${xDif}`;
 
       // Update cursor position for X
       // cursor.style.left = smoothedX + 'px';
@@ -246,24 +288,33 @@
       // test.textContent = `xPos: ${xRange} yPos: ${yRange}`;
     }
 
+    function t(text)
+    {
+      test.textContent = text;
+    }
 
     // Event listener for spacebar key press
     document.addEventListener('keydown', function(event) {
         if (event.key === ' ') {
-            // Create a new img element
-            const img = document.createElement('img');
-            img.src = 'akacodescursor.png'; // Set the image source
-            img.classList.add('absolute'); // Add the absolute class (without ID)
-
-            // Set the position of the image based on the cursor position (xPos, yPos)
-            img.style.position = 'absolute'; // Ensure the image is positioned absolutely
-            img.style.left = `${prevX}px`; // Set left position
-            img.style.top = `${prevY}px`; // Set top position
-
-            // Append the image to the body (or any container of your choice)
-            document.body.appendChild(img);
+            addImageAtCursor();
         }
     });
+
+    function addImageAtCursor()
+    {
+      // Create a new img element
+      const img = document.createElement('img');
+      img.src = 'akacodescursor.png'; // Set the image source
+      img.classList.add('absolute'); // Add the absolute class (without ID)
+
+      // Set the position of the image based on the cursor position (xPos, yPos)
+      img.style.position = 'absolute'; // Ensure the image is positioned absolutely
+      img.style.left = `${prevX}px`; // Set left position
+      img.style.top = `${prevY}px`; // Set top position
+
+      // Append the image to the body (or any container of your choice)
+      document.body.appendChild(img);
+    }
 
 
   </script>
