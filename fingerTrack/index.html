@@ -42,8 +42,6 @@
     font-family: impact;
     text-transform: uppercase;
     font-size: 23px;
-    position: absolute;
-    top: 0px;
 
   }
   li
@@ -51,17 +49,37 @@
     -webkit-text-stroke: 1px black;
     color: white;
   }
+  #instructions
+  {
+    position: absolute;
+    top: 0px;
+
+    button
+    {
+      margin-left: 20px;
+      padding: 5px 25px;
+      font-family: impact;
+      font-size: 15px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      background: white;
+      border: 1px solid black;
+    }
+  }
   </style>
 </head>
 <body>
   <video id="input_video" autoplay muted></video>
   <canvas id="output_canvas"></canvas>
   <div class="distance-label" id="distance-label"></div>
-  <ol>
-    <li>Hold up hands</li>
-    <li>Touch fingertips to thumbs</li>
-    <li>Move hands higher/lower to transpose</li>
-  </ol>
+  <div id='instructions'>
+    <ol >
+      <li>Hold up hands</li>
+      <li>Touch fingertips to thumbs</li>
+      <li>Move hands up/down to transpose</li>
+    </ol>
+    <button onmousedown="hideInstructions()">Ok lets go!</button>
+  </div>
   <script>
     const canvasElement = document.getElementById('output_canvas');
     const videoElement = document.getElementById('input_video');
@@ -70,6 +88,10 @@
 
     let wristOneY, wristTwoY;
 
+    function hideInstructions()
+    {
+      document.querySelector('#instructions').style.display = 'none';
+    }
     // Initialize MediaPipe Hands
     const hands = new Hands({
       locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`,
