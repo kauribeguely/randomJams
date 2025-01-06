@@ -64,6 +64,8 @@
     var screenW = window.innerWidth;
     var screenH = window.innerHeight;
 
+    let isEyeClosed = false;
+
     // Function to calculate yaw and pitch
     function calculateRotations(landmarks) {
       const { nose, leftEye, rightEye } = landmarks;
@@ -170,7 +172,18 @@
         // Calculate rotations
         const rotations = calculateRotations(data);
         const eyeLidDistance = calculateDistance(data.leftEyeBlink.top, data.leftEyeBlink.bottom);
-        if(eyeLidDistance < 0.02) eyesClose();
+
+        if(eyeLidDistance < 0.02 && !isEyeClosed)
+        {
+          isEyeClosed = true;
+          eyesClose();
+        }
+        else if(eyeLidDistance >= 0.02 && isEyeClosed)
+        {
+          isEyeClosed = false;
+        }
+
+
         t('lidDistance: ' +eyeLidDistance);
 
 

@@ -21,7 +21,7 @@
       left: 10px;
       color: white;
       font-size: 18px;
-      background-color: rgba(0, 0, 0, 0.5);
+      <!-- background-color: rgba(0, 0, 0, 0.5); -->
       padding: 10px;
       border-radius: 5px;
     }
@@ -31,19 +31,29 @@
     left: 20%;
     width: 1000px; /* Set the video width */
     height: 750px; /* Set the video height */
-    position: absolute; /* Position the video */
+    <!-- position: absolute; /* Position the video */ -->
     top: 10px; /* Adjust the position from the top */
     left: 10px; /* Adjust the position from the left */
     <!-- z-index: 10; /* Ensure it appears above other elements */ -->
     <!-- display: none; -->
+  }
+  ol
+  {
+    font-family: impact;
+    text-transform: uppercase;
+    font-size: 20px;
   }
   </style>
 </head>
 <body>
   <video id="input_video" autoplay muted></video>
   <canvas id="output_canvas"></canvas>
-  <div class="distance-label" id="distance-label">Calculating distances...</div>
-
+  <div class="distance-label" id="distance-label"></div>
+  <ol>
+    <li>Hold up hands</li>
+    <li>Touch fingertips to thumbs</li>
+    <li>Move hands higher/lower to transpose</li>
+  </ol>
   <script>
     const canvasElement = document.getElementById('output_canvas');
     const videoElement = document.getElementById('input_video');
@@ -74,8 +84,8 @@
 
     // Process hands and calculate distances
     hands.onResults((results) => {
-      canvasCtx.save();
-      canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+      // canvasCtx.save();
+      // canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
       // canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
 
       let distancesText = '';
@@ -125,7 +135,7 @@
           fingers.forEach((fingerIndex, i) => {
             const distance = calculateDistance(thumbTip, landmarks[fingerIndex]);
             distancesText += `Hand ${handIndex + 1} Finger ${i + 1}: ${distance} Index: ${fingerIndex} <br>`;
-            if(distance < 0.06)
+            if(distance < 0.09)
             {
               playSound(handIndex, i+1); //send hand and finger number
               // playSound();
@@ -145,8 +155,8 @@
         });
       }
 
-      distanceLabel.innerHTML = distancesText || 'No hands detected.';
-      canvasCtx.restore();
+      // distanceLabel.innerHTML = distancesText || 'No hands detected.';
+      // canvasCtx.restore();
     });
 
     // Set up the camera
@@ -275,9 +285,6 @@
     // Preload sounds when the script runs
     preloadSounds();
 
-    // Example usage
-    // playSound(1, 1); // Plays 'p1.ogg'
-    // playSound(2, 3); // Plays 'p7.ogg'
 
 
 
