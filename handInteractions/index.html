@@ -161,15 +161,15 @@
             let indexYPixels = indexTip.y * canvasElement.height;
             // Check for collision with the square
             if (
-              indexTip.x * indexXPixels > square.x &&
-              indexTip.x * indexXPixels < square.x + square.size &&
-              indexTip.y * indexYPixels > square.y &&
-              indexTip.y * indexYPixels < square.y + square.size
+              indexXPixels > square.x &&
+              indexXPixels < square.x + square.size &&
+              indexYPixels > square.y &&
+              indexYPixels < square.y + square.size
             ) {
               selectedSquare = true;
             }
 
-            selectedSquare = true;
+            // selectedSquare = true;
 
 
             distancesText += 'selectedSquare';
