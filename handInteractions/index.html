@@ -117,7 +117,8 @@
       ).toFixed(2);
     }
 
-    let square = { x: 200, y: 200, size: 50 }; // Initial square position and size
+    let square = { x: 200, y: 200, size: 200 }; // Initial square position and size
+    let square2 = { x: 400, y: 800, size: 100 }; // Initial square position and size
     let isPinching = false; // To track if the user is pinching
     let selectedSquare = false; // To track if the square is being held
 
@@ -140,7 +141,7 @@
           // const fingers = [8, 12, 16, 20]; // Fingertips of index, middle, ring, pinky fingers
 
           const distance = calculateDistance(thumbTip, indexTip);
-          distancesText += `distance: ${distance}`;
+          distancesText += `distance: ${distance} <br>`;
 
           if(handIndex == 0)
           {
@@ -151,11 +152,12 @@
             wristTwoY = 1 - thumbTip.y;
           }
 
-          distancesText += 'IndexX: '+indexTip.x+ 'IndexY: '+indexTip.y+'<br>';
+          distancesText += 'IndexZ: '+indexTip.z;
+          // distancesText += 'IndexX: '+indexTip.x+ 'IndexY: '+indexTip.y+'<br>';
           // distancesText += 'Hand1Y: '+wristOneY+ 'Hand2Y: '+wristTwoY+'<br>'
 
           // Check for a pinch gesture
-          if (distance < 0.06) { // Adjust threshold as needed
+          if (distance < 0.09) { // Adjust threshold as needed
             isPinching = true;
             let indexXPixels = indexTip.x * canvasElement.width;
             let indexYPixels = indexTip.y * canvasElement.height;
@@ -178,6 +180,7 @@
             if (selectedSquare) {
               square.x = indexXPixels - square.size / 2;
               square.y = indexYPixels - square.size / 2;
+              square.size = indexTip.z*-1000;
             }
           } else {
             // Reset if the pinch is released
