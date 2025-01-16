@@ -99,6 +99,9 @@
 
     canvasElement.width = windowWidth;
     canvasElement.height = windowHeight;
+
+
+    const activeFingers = new Set(); // Keep track of fingers currently playing
     // canvasElement.width = canvasElement.offsetWidth;
     // canvasElement.height = canvasElement.offsetHeight;
 
@@ -212,6 +215,7 @@
             }
             else
             {
+              stopSound(fingerIndex); // Stop the sound when finger is no longer in range
               // if(activeSounds.size > 0)
               // {
               //   stopSound(handIndex, fingerIndex+1); //send hand and finger number
@@ -269,7 +273,13 @@
 
 
 // Tone.js setup
-    const synth = new Tone.Synth().toDestination();
+    const synths = [
+     new Tone.Synth().toDestination(),
+     new Tone.Synth().toDestination(),
+     new Tone.Synth().toDestination(),
+     new Tone.Synth().toDestination(),
+     new Tone.Synth().toDestination(),
+    ]; // One synth per finger
 
     // Base notes for the strings (EADGB)
     const baseNotes = ["E3", "A3", "D4", "G4", "B4"];
@@ -277,9 +287,19 @@
     // Chord offsets (e.g., barre positions for different chords)
     const chordOffsets = [
       [0, 0, 0, 0, 0], // E major (open chord)
-      [1, 1, 1, 1, 1], // F major (barre 1st fret)
       [2, 2, 2, 2, 2], // F# major (barre 2nd fret)
+      [3, 3, 3, 3, 3], // F major (barre 1st fret)
     ];
+
+    const eChord = [0, 2, 2, 1, 0];
+    const aChord = [0, 0, 2, 2, 2];
+
+    
+    // const chordOffsets = [
+    //   [0, 0, 0, 0, 0], // E major (open chord)
+    //   [1, 1, 1, 1, 1], // F major (barre 1st fret)
+    //   [2, 2, 2, 2, 2], // F# major (barre 2nd fret)
+    // ];
 
     /**
      * Play a string sound based on the hand position and finger number.
@@ -287,6 +307,10 @@
      * @param {number} fingerNumber - The finger number (0 for thumb, 1-4 for index to pinky).
      */
     function playSound(handPosition, fingerNumber) {
+
+      if (activeFingers.has(fingerNumber)) return; // Prevent double-playing
+      activeFingers.add(fingerNumber); // Mark this finger as active
+
       if (fingerNumber < 0 || fingerNumber > 4) {
         console.error("Invalid finger number. Must be 0 (thumb) to 4 (pinky).");
         return;
@@ -294,13 +318,18 @@
 
       // Get the base note and the chord offset for the selected string
       const baseNote = baseNotes[fingerNumber];
-      const semitoneOffset = chordOffsets[handPosition][fingerNumber];
+      const semitoneOffset = chordOffsets[handPosition][fingerNumber] + eChord[fingerNumber];
 
       // Calculate the final note
       const note = Tone.Frequency(baseNote).transpose(semitoneOffset);
 
       // Play the note
-      synth.triggerAttackRelease(note, "8n");
+      // synth.triggerAttackRelease(note, "8n");
+      synths[fingerNumber].triggerAttackRelease(note, "8n");
+    }
+
+    function stopSound(fingerNumber) {
+      activeFingers.delete(fingerNumber); // Mark this finger as inactive
     }
 
     // Example usage:
