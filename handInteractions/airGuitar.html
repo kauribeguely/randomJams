@@ -147,6 +147,21 @@
 
       // distancesText = 'yPos: '+wristOneY;
       if (results.multiHandLandmarks) {
+
+        if(results.multiHandLandmarks.length > 1)
+        {
+          const leftHand = results.multiHandLandmarks[1];
+          const wristX = leftHand[1].x; // X position of the wrist
+          if (wristX > 0.85) {
+            chordHandPosition = 0; // First position (E chord)
+          } else if (wristX > 0.7) {
+            chordHandPosition = 1; // Second position (F chord)
+          } else {
+            chordHandPosition = 2; // Third position (F# chord)
+          }
+
+        }
+
         results.multiHandLandmarks.forEach((landmarks, handIndex) => {
           // Define the landmarks for each finger
           const fingers = [
@@ -157,15 +172,7 @@
             { tip: 20, base: 17 , isDown: false}  // Pinky
           ];
 
-          const leftHand = results.multiHandLandmarks[0];
-          const wristX = leftHand[0].x; // X position of the wrist
-          if (wristX < 0.15) {
-            chordHandPosition = 0; // First position (E chord)
-          } else if (wristX < 0.3) {
-            chordHandPosition = 1; // Second position (F chord)
-          } else {
-            chordHandPosition = 2; // Third position (F# chord)
-          }
+
           // chordHandPosition = 0;
           distancesText += chordHandPosition+" <<<POS <br>";
           // { tip: 4, base: 2 },   // Thumb above i set base of index
@@ -205,21 +212,25 @@
             // const fingers = [
             //   { tip: 4, base: 5 , isDown: false},   // Thumb
             // if(!finger.isDown && distance < playDistance)
-            if(distance < playDistance)
+            if(handIndex == 0)
             {
-              // stopSound(handIndex, fingerIndex+1); //send hand and finger number
-              // playSound(handIndex, fingerIndex+1); //send hand and finger number
-              playSound(chordHandPosition, fingerIndex); //send hand and finger number
-              // finger.isDown = true;
-              // playSound();
-            }
-            else
-            {
-              stopSound(fingerIndex); // Stop the sound when finger is no longer in range
-              // if(activeSounds.size > 0)
-              // {
-              //   stopSound(handIndex, fingerIndex+1); //send hand and finger number
-              // }
+
+              if(distance < playDistance)
+              {
+                // stopSound(handIndex, fingerIndex+1); //send hand and finger number
+                // playSound(handIndex, fingerIndex+1); //send hand and finger number
+                playSound(chordHandPosition, fingerIndex); //send hand and finger number
+                // finger.isDown = true;
+                // playSound();
+              }
+              else
+              {
+                stopSound(fingerIndex); // Stop the sound when finger is no longer in range
+                // if(activeSounds.size > 0)
+                // {
+                //   stopSound(handIndex, fingerIndex+1); //send hand and finger number
+                // }
+              }
             }
 
             // else if(finger.isDown && distance > playDistance)
@@ -294,7 +305,7 @@
     const eChord = [0, 2, 2, 1, 0];
     const aChord = [0, 0, 2, 2, 2];
 
-    
+
     // const chordOffsets = [
     //   [0, 0, 0, 0, 0], // E major (open chord)
     //   [1, 1, 1, 1, 1], // F major (barre 1st fret)
@@ -318,7 +329,7 @@
 
       // Get the base note and the chord offset for the selected string
       const baseNote = baseNotes[fingerNumber];
-      const semitoneOffset = chordOffsets[handPosition][fingerNumber] + eChord[fingerNumber];
+      const semitoneOffset = chordOffsets[handPosition][fingerNumber] + aChord[fingerNumber];
 
       // Calculate the final note
       const note = Tone.Frequency(baseNote).transpose(semitoneOffset);
