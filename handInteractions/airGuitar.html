@@ -139,6 +139,17 @@
     // Process hands and calculate distances
     hands.onResults((results) => {
       // canvasCtx.save();
+
+      // Define the landmarks for each finger
+      const fingers = [
+        { tip: 4, base: 5 },   // Thumb
+        { tip: 8, base: 5 },   // Index
+        { tip: 12, base: 9 },  // Middle
+        { tip: 16, base: 13 }, // Ring
+        { tip: 20, base: 17 }  // Pinky
+        // { tip: 20, base: 17 , isDown: false}  // Pinky
+      ];
+
       canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
       // canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
 
@@ -160,44 +171,46 @@
             chordHandPosition = 2; // Third position (F# chord)
           }
 
-        }
-
-        results.multiHandLandmarks.forEach((landmarks, handIndex) => {
-          // Define the landmarks for each finger
-          const fingers = [
-            { tip: 4, base: 5 , isDown: false},   // Thumb
-            { tip: 8, base: 5 , isDown: false},   // Index
-            { tip: 12, base: 9 , isDown: false},  // Middle
-            { tip: 16, base: 13 , isDown: false}, // Ring
-            { tip: 20, base: 17 , isDown: false}  // Pinky
-          ];
-
-
-          // chordHandPosition = 0;
-          distancesText += chordHandPosition+" <<<POS <br>";
-          // { tip: 4, base: 2 },   // Thumb above i set base of index
-
-
-          // Iterate through each finger
           fingers.forEach((finger, fingerIndex) => {
-            const tip = landmarks[finger.tip];   // Get the tip landmark
-            const base = landmarks[finger.base]; // Get the base landmark
+
+            const tip = leftHand[finger.tip];   // Get the tip landmark
+            const base = leftHand[finger.base]; // Get the base landmark
             // const isDown = finger.isDown;
 
             // Calculate the distance between the tip and base
             const distance = calculateDistance(tip, base);
 
-            // Draw a dot for the tip
-            // canvasCtx.beginPath();
-            // canvasCtx.arc(tip.x * canvasElement.width, tip.y * canvasElement.height, 5, 0, Math.PI * 2);
-            // canvasCtx.fillStyle = handIndex === 0 ? 'red' : 'blue'; // Color based on hand
-            // canvasCtx.fill();
-            //
-            // // Draw a dot for the base
-            // canvasCtx.beginPath();
-            // canvasCtx.arc(base.x * canvasElement.width, base.y * canvasElement.height, 5, 0, Math.PI * 2);
-            // canvasCtx.fillStyle = handIndex === 0 ? 'green' : 'orange'; // Color based on hand
-            // canvasCtx.fill();
+            if(fingerIndex == 1)
+            {
+              if(distance > 0.15)
+              {
+                activeChord = aChord;
+              }
+              else
+              {
+                activeChord = eChord;
+              }
+            }
+
+          });
+        }
+
+        if(results.multiHandLandmarks.length > 0)
+        {
+          const hand = results.multiHandLandmarks[0];
+          // chordHandPosition = 0;
+          distancesText += chordHandPosition+" <<<POS <br>";
+          // { tip: 4, base: 2 },   // Thumb above i set base of index
+          const handIndex = 0;
+
+          // Iterate through each finger
+          fingers.forEach((finger, fingerIndex) => {
+            const tip = hand[finger.tip];   // Get the tip landmark
+            const base = hand[finger.base]; // Get the base landmark
+            // const isDown = finger.isDown;
+
+            // Calculate the distance between the tip and base
+            const distance = calculateDistance(tip, base);
 
             // Use the distance values as needed
             distancesText += `Hand ${handIndex + 1}, Finger ${fingerIndex + 1}: Distance = ${distance} <br>`;
@@ -242,22 +255,14 @@
             // }
 
           });
+        }
 
-          // const distance = calculateDistance(thumbTip, indexTip);
-          // distancesText += `distance: ${distance} <br>`;
 
-          // if(handIndex == 0)
-          // {
-          //   wristOneY = 1 - thumbTip.y;
-          // }
-          // else
-          // {
-          //   wristTwoY = 1 - thumbTip.y;
-          // }
 
-          // distancesText += 'IndexZ: '+indexTip.z;
-          // distancesText += 'IndexX: '+indexTip.x+ 'IndexY: '+indexTip.y+'<br>';
-          // distancesText += 'Hand1Y: '+wristOneY+ 'Hand2Y: '+wristTwoY+'<br>'
+        results.multiHandLandmarks.forEach((landmarks, handIndex) => {
+
+
+
 
 
 
@@ -304,6 +309,7 @@
 
     const eChord = [0, 2, 2, 1, 0];
     const aChord = [0, 0, 2, 2, 2];
+    let activeChord = eChord;
 
 
     // const chordOffsets = [
@@ -329,7 +335,7 @@
 
       // Get the base note and the chord offset for the selected string
       const baseNote = baseNotes[fingerNumber];
-      const semitoneOffset = chordOffsets[handPosition][fingerNumber] + aChord[fingerNumber];
+      const semitoneOffset = chordOffsets[handPosition][fingerNumber] + activeChord[fingerNumber];
 
       // Calculate the final note
       const note = Tone.Frequency(baseNote).transpose(semitoneOffset);
