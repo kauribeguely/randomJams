@@ -289,13 +289,25 @@
 
 
 // Tone.js setup
-    const synths = [
-     new Tone.Synth().toDestination(),
-     new Tone.Synth().toDestination(),
-     new Tone.Synth().toDestination(),
-     new Tone.Synth().toDestination(),
-     new Tone.Synth().toDestination(),
-    ]; // One synth per finger
+    // const synths = [
+    //  new Tone.Synth().toDestination(),
+    //  new Tone.Synth().toDestination(),
+    //  new Tone.Synth().toDestination(),
+    //  new Tone.Synth().toDestination(),
+    //  new Tone.Synth().toDestination(),
+    // ]; // One synth per finger
+
+    const sampler = new Tone.Sampler({
+      E0: "g23.ogg", // Lowest string
+      A0: "g33.ogg", // Second string
+      // E0: "E0.ogg", // Lowest string
+      // A0: "A0.ogg", // Second string
+      // D1: "D1.ogg", // Third string
+      // G1: "G1.ogg", // Fourth string
+      // B1: "B1.ogg", // Fifth string
+    }).toDestination();
+
+    // sampler.load();
 
     // Base notes for the strings (EADGB)
     const baseNotes = ["E3", "A3", "D4", "G4", "B4"];
@@ -333,16 +345,30 @@
         return;
       }
 
-      // Get the base note and the chord offset for the selected string
-      const baseNote = baseNotes[fingerNumber];
-      const semitoneOffset = chordOffsets[handPosition][fingerNumber] + activeChord[fingerNumber];
 
-      // Calculate the final note
-      const note = Tone.Frequency(baseNote).transpose(semitoneOffset);
+
+      // Map fingers to base samples and semitone offsets
+      const baseSamples = ["A0", "A0", "A0", "A0", "A0"]; // Thumb: E0, Rest: A0
+      const transposeOffsets = [0, 5, 10, 15, 19]; // Transpose intervals for each finger
+      const baseSample = baseSamples[fingerNumber];
+      const semitoneOffset = transposeOffsets[fingerNumber] + chordOffsets[handPosition][fingerNumber] + activeChord[fingerNumber];
+
+      // Calculate the final note to play
+      const note = Tone.Frequency(baseSample).transpose(semitoneOffset);
 
       // Play the note
-      // synth.triggerAttackRelease(note, "8n");
-      synths[fingerNumber].triggerAttackRelease(note, "8n");
+      sampler.triggerAttackRelease(note, "8n");
+
+      // // Get the base note and the chord offset for the selected string
+      // const baseNote = baseNotes[fingerNumber];
+      // const semitoneOffset = chordOffsets[handPosition][fingerNumber] + activeChord[fingerNumber];
+      //
+      // // Calculate the final note
+      // const note = Tone.Frequency(baseNote).transpose(semitoneOffset);
+      //
+      // // Play the note
+      // // synth.triggerAttackRelease(note, "8n");
+      // synths[fingerNumber].triggerAttackRelease(note, "8n");
     }
 
     function stopSound(fingerNumber) {
